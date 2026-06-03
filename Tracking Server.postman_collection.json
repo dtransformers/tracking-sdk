@@ -1,0 +1,715 @@
+{
+  "info": {
+    "_postman_id": "a969fb3a-abfc-4164-b64d-8e0a83113973",
+    "name": "Tracking Server",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "24081588"
+  },
+  "item": [
+    {
+      "name": "Sites",
+      "item": [
+        {
+          "name": "Get All Sites",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{TRACKING_SERVER}}/api/v1/sites",
+              "host": [
+                "{{TRACKING_SERVER}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sites"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET SITE DETAILS",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "const responseStatus = pm.response.code;",
+                  "const PUBLIC_API_KEY = json.public_key;",
+                  "const SECRET_API_KEY = json.secret_key;",
+                  "pm.environment.set('API_PUBLIC_KEY',PUBLIC_API_KEY);",
+                  "pm.environment.set('API_SECRET_KEY',SECRET_API_KEY);",
+                  "",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{TRACKING_SERVER}}/api/v1/sites/:site_uuid",
+              "host": [
+                "{{TRACKING_SERVER}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sites",
+                ":site_uuid"
+              ],
+              "variable": [
+                {
+                  "key": "site_uuid",
+                  "value": "{{site_uuid}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Sites",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.environment.set('site_uuid', json.uuid);",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"domain\": \"https://osoul.io\",\n  \"name\": \"Osoul Official Website\",\n  \"tenant_id\": 1\n} ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{TRACKING_SERVER}}/api/v1/sites",
+              "host": [
+                "{{TRACKING_SERVER}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sites"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "basic",
+        "basic": [
+          {
+            "key": "password",
+            "value": "{{ROOT_PASSWORD}}",
+            "type": "string"
+          },
+          {
+            "key": "username",
+            "value": "{{ROOT_USERNAME}}",
+            "type": "string"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Visitors",
+      "item": [
+        {
+          "name": "Create Visitor",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "function detectBrowser(ua) {",
+                  "    if (/edg/i.test(ua)) return 'Edge';",
+                  "    if (/chrome/i.test(ua)) return 'Chrome';",
+                  "    if (/firefox/i.test(ua)) return 'Firefox';",
+                  "    if (/safari/i.test(ua)) return 'Safari';",
+                  "    return 'Unknown';",
+                  "}",
+                  "",
+                  "function detectOS(ua) {",
+                  "    if (/windows/i.test(ua)) return 'Windows';",
+                  "    if (/android/i.test(ua)) return 'Android';",
+                  "    if (/ipad|iphone|ipod/i.test(ua)) return 'iOS';",
+                  "    if (/macintosh|mac os x/i.test(ua)) return 'macOS';",
+                  "    if (/linux/i.test(ua)) return 'Linux';",
+                  "    return 'Unknown';",
+                  "}",
+                  "",
+                  "function detectDeviceType(ua) {",
+                  "    if (/mobile/i.test(ua)) return 'mobile';",
+                  "    if (/tablet/i.test(ua)) return 'tablet';",
+                  "    return 'desktop';",
+                  "}",
+                  "",
+                  "function generateFingerprint(userAgent){",
+                  "    const key = userAgent + Date.now() + Math.random();",
+                  "    return CryptoJS.SHA256(key).toString();",
+                  "}",
+                  "",
+                  "function generateBody(){",
+                  "    const userAgent = pm.variables.replaceIn('{{$randomUserAgent}}');",
+                  "    const fingerprint = generateFingerprint(userAgent);",
+                  "    const referrer = pm.environment.get(\"REFERRER_URL\") || \"https://google.com\";",
+                  "    const referrerHost = new URL(referrer).host;",
+                  "    const previousSite = pm.environment.get(\"PREVIOUS_SITE\") || \"https://facebook.com\";",
+                  "",
+                  "    pm.environment.set(\"browser\", detectBrowser(userAgent));",
+                  "    pm.environment.set(\"device_type\", detectDeviceType(userAgent));",
+                  "    pm.environment.set(\"fingerprint_hash\", fingerprint);",
+                  "    pm.environment.set(\"referrer_host\", referrerHost);",
+                  "    pm.environment.set(\"previous_site\", previousSite);",
+                  "    pm.environment.set(\"language\", \"en-US\");",
+                  "    pm.environment.set(\"timezone\", Intl.DateTimeFormat().resolvedOptions().timeZone);",
+                  "    pm.environment.set(\"device_os\", detectOS(userAgent));",
+                  "",
+                  "    pm.environment.set(\"acquisition_source\", \"chatgpt\");",
+                  "    pm.environment.set(\"acquisition_campaign\", \"aid_campaign\");",
+                  "    pm.environment.set(\"acquisition_medium\", \"paid\");",
+                  "",
+                  "",
+                  "}",
+                  "",
+                  "function generateSignature(){",
+                  "    const PUBLIC_KEY = pm.environment.get(\"API_PUBLIC_KEY\") || pm.collectionVariables.get(\"API_PUBLIC_KEY\");",
+                  "    const SECRET_KEY = pm.environment.get(\"API_SECRET_KEY\") || pm.collectionVariables.get(\"API_SECRET_KEY\");",
+                  "",
+                  "    if (!PUBLIC_KEY || !SECRET_KEY) {",
+                  "        console.error(\"❌ Missing API_PUBLIC_KEY or API_SECRET_KEY in environment/collection variables\");",
+                  "        throw new Error(\"API credentials not configured. Please set API_PUBLIC_KEY and API_SECRET_KEY in your environment.\");",
+                  "    }",
+                  "",
+                  "    function generateNonce() {",
+                  "        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {",
+                  "            const r = Math.random() * 16 | 0;",
+                  "            const v = c === 'x' ? r : (r & 0x3 | 0x8);",
+                  "            return v.toString(16);",
+                  "        });",
+                  "    }",
+                  "    const timestamp = Math.floor(Date.now() / 1000).toString();",
+                  "    const nonce = generateNonce();",
+                  "",
+                  "    const method = pm.request.method;",
+                  "    const url = pm.request.url;",
+                  "    ",
+                  "    // Safety check: Use replaceIn on path/query in case they also contain Postman variables",
+                  "    const path = pm.variables.replaceIn(url.getPath() || '/');",
+                  "    const queryParams = pm.variables.replaceIn(url.getQueryString() || '');",
+                  "",
+                  "    let body = '';",
+                  "    if (pm.request.body && pm.request.body.mode !== 'formdata' && pm.request.body.mode !== 'file') {",
+                  "        if (pm.request.body.mode === 'raw') {",
+                  "            body = pm.request.body.raw || '';",
+                  "        } else if (pm.request.body.mode === 'urlencoded') {",
+                  "            body = pm.request.body.urlencoded.toString();",
+                  "        } else if (pm.request.body.mode === 'graphql') {",
+                  "            body = JSON.stringify({",
+                  "                query: pm.request.body.graphql.query,",
+                  "                variables: pm.request.body.graphql.variables",
+                  "            });",
+                  "        }",
+                  "    }",
+                  "    ",
+                  "",
+                  "    body = pm.variables.replaceIn(body);",
+                  "",
+                  "    const canonicalParts = [",
+                  "        method,",
+                  "        path,",
+                  "        queryParams,",
+                  "        timestamp,",
+                  "        nonce,",
+                  "        body,",
+                  "    ];",
+                  "",
+                  "    const canonicalRequest = canonicalParts.join('\\n');",
+                  "    const signature = CryptoJS.HmacSHA256(canonicalRequest, SECRET_KEY).toString(CryptoJS.enc.Hex);",
+                  "",
+                  "    pm.request.headers.add({",
+                  "        key: 'X-API-Key',",
+                  "        value: PUBLIC_KEY",
+                  "    });",
+                  "",
+                  "    pm.request.headers.add({",
+                  "        key: 'X-Signature',",
+                  "        value: signature",
+                  "    });",
+                  "",
+                  "    pm.request.headers.add({",
+                  "        key: 'X-Timestamp',",
+                  "        value: timestamp",
+                  "    });",
+                  "",
+                  "    pm.request.headers.add({",
+                  "        key: 'X-Nonce',",
+                  "        value: nonce",
+                  "    });",
+                  "",
+                  "}",
+                  "",
+                  "generateBody();",
+                  "generateSignature();"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "value",
+                  "value": "{{API_PUBLIC_KEY}}",
+                  "type": "string"
+                },
+                {
+                  "key": "key",
+                  "value": "X-API-KEY",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"browser\": \"{{browser}}\",\n    \"browser_version\": \"148.0.7778.179 \",\n    \"acquisition_campaign\": \"{{acquisition_campaign}}\",\n    \"acquisition_medium\": \"{{acquisition_medium}}\",\n    \"acquisition_source\": \"{{acquisition_source}}\",\n    \"campaign_content\": \"hello_man\",\n    \"campaign_id\": \"2\",\n    \"campaign_term\": \"demo_application\",\n    \"entry_page\": \"/\",\n    \"screen_width\": 1040,\n    \"screen_height\": 2040,\n    \"os\": \"{{device_os}}\",\n    \"device_type\": \"{{device_type}}\",\n    \"fingerprint_hash\": \"{{fingerprint_hash}}\",\n    \"referrer_host\": \"{{referrer_host}}\",\n    \"previous_site\": \"{{previous_site}}\",\n    \"language\": \"{{language}}\",\n    \"timezone\": \"{{timezone}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{TRACKING_SERVER}}/api/v1/visitors/",
+              "host": [
+                "{{TRACKING_SERVER}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "visitors",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consents",
+      "item": [
+        {
+          "name": "Setup Customer Consent",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"consent_type\": \"tracking\",\n    \"status\": \"granted\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{TRACKING_SERVER}}/api/v1/consents/",
+              "host": [
+                "{{TRACKING_SERVER}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "consents",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              "function generateSignature(){",
+              "    const PUBLIC_KEY = pm.environment.get(\"API_PUBLIC_KEY\") || pm.collectionVariables.get(\"API_PUBLIC_KEY\");",
+              "    const SECRET_KEY = pm.environment.get(\"API_SECRET_KEY\") || pm.collectionVariables.get(\"API_SECRET_KEY\");",
+              "",
+              "    if (!PUBLIC_KEY || !SECRET_KEY) {",
+              "        console.error(\"❌ Missing API_PUBLIC_KEY or API_SECRET_KEY in environment/collection variables\");",
+              "        throw new Error(\"API credentials not configured. Please set API_PUBLIC_KEY and API_SECRET_KEY in your environment.\");",
+              "    }",
+              "",
+              "    function generateNonce() {",
+              "        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {",
+              "            const r = Math.random() * 16 | 0;",
+              "            const v = c === 'x' ? r : (r & 0x3 | 0x8);",
+              "            return v.toString(16);",
+              "        });",
+              "    }",
+              "    ",
+              "    const timestamp = Math.floor(Date.now() / 1000).toString();",
+              "    const nonce = generateNonce();",
+              "",
+              "    const method = pm.request.method;",
+              "    const url = pm.request.url;",
+              "    ",
+              "    // Safety check: Use replaceIn on path/query in case they also contain Postman variables",
+              "    const path = pm.variables.replaceIn(url.getPath() || '/');",
+              "    const queryParams = pm.variables.replaceIn(url.getQueryString() || '');",
+              "",
+              "    let body = '';",
+              "    if (pm.request.body && pm.request.body.mode !== 'formdata' && pm.request.body.mode !== 'file') {",
+              "        if (pm.request.body.mode === 'raw') {",
+              "            body = pm.request.body.raw || '';",
+              "        } else if (pm.request.body.mode === 'urlencoded') {",
+              "            body = pm.request.body.urlencoded.toString();",
+              "        } else if (pm.request.body.mode === 'graphql') {",
+              "            body = JSON.stringify({",
+              "                query: pm.request.body.graphql.query,",
+              "                variables: pm.request.body.graphql.variables",
+              "            });",
+              "        }",
+              "    }",
+              "    ",
+              "",
+              "    body = pm.variables.replaceIn(body);",
+              "",
+              "    const canonicalParts = [",
+              "        method,",
+              "        path,",
+              "        queryParams,",
+              "        timestamp,",
+              "        nonce,",
+              "        body,",
+              "    ];",
+              "",
+              "    const canonicalRequest = canonicalParts.join('\\n');",
+              "    const signature = CryptoJS.HmacSHA256(canonicalRequest, SECRET_KEY).toString(CryptoJS.enc.Hex);",
+              "",
+              "    pm.request.headers.add({",
+              "        key: 'X-API-Key',",
+              "        value: PUBLIC_KEY",
+              "    });",
+              "",
+              "    pm.request.headers.add({",
+              "        key: 'X-Signature',",
+              "        value: signature",
+              "    });",
+              "",
+              "    pm.request.headers.add({",
+              "        key: 'X-Timestamp',",
+              "        value: timestamp",
+              "    });",
+              "",
+              "    pm.request.headers.add({",
+              "        key: 'X-Nonce',",
+              "        value: nonce",
+              "    });",
+              "",
+              "}",
+              "generateSignature()"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "Page Views",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"referrer\": \"https://google.com\",\n  \"title\": \"Hospitality Growth & Customer Intelligence Ecosystem\",\n  \"url\": \"https://osoul.io/en\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{TRACKING_SERVER}}/api/v1/events/pageviews",
+              "host": [
+                "{{TRACKING_SERVER}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "events",
+                "pageviews"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Visit Events",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"category\": \"navigation.page_view\",\n    \"name\": \"page navigation\",\n    \"type\": \"navigation\",\n    \"click_ids\": {\n        \"ScCid\": \"string\",\n        \"dclid\": \"string\",\n        \"epik\": \"string\",\n        \"fbc\": \"string\",\n        \"fbclid\": \"string\",\n        \"fbp\": \"string\",\n        \"gbraid\": \"string\",\n        \"gclid\": \"string\",\n        \"li_fat_id\": \"string\",\n        \"liveramp_ats_id\": \"string\",\n        \"msclkid\": \"string\",\n        \"ttclid\": \"string\",\n        \"ttp\": \"string\",\n        \"twclid\": \"string\",\n        \"wbraid\": \"string\"\n    },\n    \"occurred_at\": \"2026-06-03T07:42:13.870Z\",\n    \"page_id\": 1,\n    \"schema_version\": \"1.0.0\",\n    \"sdk_name\": \"tracking-sdk\",\n    \"sdk_version\": \"1.0.1\",\n    \"sequence\": 1,\n    \"target\": {\n        \"affiliation\": \"string\",\n        \"auth_method\": \"string\",\n        \"auth_provider\": \"email\",\n        \"button_id\": \"string\",\n        \"button_name\": \"string\",\n        \"click_x\": 0,\n        \"click_y\": 0,\n        \"component\": \"string\",\n        \"component_name\": \"string\",\n        \"coupon\": \"string\",\n        \"currency\": \"string\",\n        \"custom\": {\n            \"additionalProp1\": {\n                \"door\": 1,\n                                \"window\": 1\n\n            }\n        },\n        \"duration_ms\": 0,\n        \"element_class\": \"string\",\n        \"element_id\": \"string\",\n        \"element_name\": \"string\",\n        \"element_selector\": \"string\",\n        \"element_text\": \"string\",\n        \"element_type\": \"button\",\n        \"element_x\": 0,\n        \"element_y\": 0,\n        \"error_code\": \"string\",\n        \"error_message\": \"string\",\n        \"error_severity\": \"info\",\n        \"error_stack\": \"string\",\n        \"feature\": \"string\",\n        \"form_completion_pct\": 0,\n        \"form_field\": \"string\",\n        \"form_field_count\": 0,\n        \"form_id\": \"string\",\n        \"form_name\": \"string\",\n        \"form_value_hash\": \"string\",\n        \"href\": \"string\",\n        \"http_status\": 0,\n        \"is_new_user\": true,\n        \"items\": [\n            {\n                \"affiliation\": \"string\",\n                \"coupon\": \"string\",\n                \"currency\": \"string\",\n                \"discount\": 0,\n                \"index\": 0,\n                \"item_brand\": \"string\",\n                \"item_category\": \"string\",\n                \"item_category2\": \"string\",\n                \"item_category3\": \"string\",\n                \"item_id\": \"string\",\n                \"item_list_id\": \"string\",\n                \"item_list_name\": \"string\",\n                \"item_name\": \"string\",\n                \"item_variant\": \"string\",\n                \"price\": 0,\n                \"quantity\": 0\n            }\n        ],\n        \"media_current_time_ms\": 0,\n        \"media_duration_ms\": 0,\n        \"media_fullscreen\": true,\n        \"media_id\": \"string\",\n        \"media_percent\": 0,\n        \"media_provider\": \"string\",\n        \"media_quality\": \"string\",\n        \"media_sound_on\": true,\n        \"media_title\": \"string\",\n        \"media_type\": \"video\",\n        \"mouse_button\": \"left\",\n        \"page_name\": \"string\",\n        \"payment_type\": \"string\",\n        \"priority\": \"low\",\n        \"scroll_depth_px\": 0,\n        \"scroll_direction\": \"up\",\n        \"scroll_percent\": 0,\n        \"search_filters\": {\n            \"additionalProp1\": \"string\",\n            \"additionalProp2\": \"string\",\n            \"additionalProp3\": \"string\"\n        },\n        \"search_results_count\": 0,\n        \"search_term\": \"string\",\n        \"share_method\": \"string\",\n        \"share_platform\": \"string\",\n        \"shipping\": 0,\n        \"shipping_tier\": \"string\",\n        \"tax\": 0,\n        \"transaction_id\": \"string\",\n        \"value\": 0\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{TRACKING_SERVER}}/api/v1/events/custom",
+              "host": [
+                "{{TRACKING_SERVER}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "events",
+                "custom"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              "function generateSignature(){",
+              "    const PUBLIC_KEY = pm.environment.get(\"API_PUBLIC_KEY\") || pm.collectionVariables.get(\"API_PUBLIC_KEY\");",
+              "    const SECRET_KEY = pm.environment.get(\"API_SECRET_KEY\") || pm.collectionVariables.get(\"API_SECRET_KEY\");",
+              "",
+              "    if (!PUBLIC_KEY || !SECRET_KEY) {",
+              "        console.error(\"❌ Missing API_PUBLIC_KEY or API_SECRET_KEY in environment/collection variables\");",
+              "        throw new Error(\"API credentials not configured. Please set API_PUBLIC_KEY and API_SECRET_KEY in your environment.\");",
+              "    }",
+              "",
+              "    function generateNonce() {",
+              "        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {",
+              "            const r = Math.random() * 16 | 0;",
+              "            const v = c === 'x' ? r : (r & 0x3 | 0x8);",
+              "            return v.toString(16);",
+              "        });",
+              "    }",
+              "    ",
+              "    const timestamp = Math.floor(Date.now() / 1000).toString();",
+              "    const nonce = generateNonce();",
+              "",
+              "    const method = pm.request.method;",
+              "    const url = pm.request.url;",
+              "    ",
+              "    // Safety check: Use replaceIn on path/query in case they also contain Postman variables",
+              "    const path = pm.variables.replaceIn(url.getPath() || '/');",
+              "    const queryParams = pm.variables.replaceIn(url.getQueryString() || '');",
+              "",
+              "    let body = '';",
+              "    if (pm.request.body && pm.request.body.mode !== 'formdata' && pm.request.body.mode !== 'file') {",
+              "        if (pm.request.body.mode === 'raw') {",
+              "            body = pm.request.body.raw || '';",
+              "        } else if (pm.request.body.mode === 'urlencoded') {",
+              "            body = pm.request.body.urlencoded.toString();",
+              "        } else if (pm.request.body.mode === 'graphql') {",
+              "            body = JSON.stringify({",
+              "                query: pm.request.body.graphql.query,",
+              "                variables: pm.request.body.graphql.variables",
+              "            });",
+              "        }",
+              "    }",
+              "    ",
+              "",
+              "    body = pm.variables.replaceIn(body);",
+              "",
+              "    const canonicalParts = [",
+              "        method,",
+              "        path,",
+              "        queryParams,",
+              "        timestamp,",
+              "        nonce,",
+              "        body,",
+              "    ];",
+              "",
+              "    const canonicalRequest = canonicalParts.join('\\n');",
+              "    const signature = CryptoJS.HmacSHA256(canonicalRequest, SECRET_KEY).toString(CryptoJS.enc.Hex);",
+              "",
+              "    pm.request.headers.add({",
+              "        key: 'X-API-Key',",
+              "        value: PUBLIC_KEY",
+              "    });",
+              "",
+              "    pm.request.headers.add({",
+              "        key: 'X-Signature',",
+              "        value: signature",
+              "    });",
+              "",
+              "    pm.request.headers.add({",
+              "        key: 'X-Timestamp',",
+              "        value: timestamp",
+              "    });",
+              "",
+              "    pm.request.headers.add({",
+              "        key: 'X-Nonce',",
+              "        value: nonce",
+              "    });",
+              "",
+              "}",
+              "generateSignature()"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "X-API-KEY",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{API_PUBLIC_KEY}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}
