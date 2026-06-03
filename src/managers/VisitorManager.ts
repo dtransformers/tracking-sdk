@@ -5,8 +5,10 @@ import { VisitorResponse, CreateVisitorRequest } from "../types/visitor";
 import { collectDeviceInfo, generateFingerprintHash } from "../utils/fingerprint";
 import { parseAttributionParams, persistAttribution, getStoredAttribution } from "../utils/attribution";
 
+type VisitorNullable = VisitorResponse | null;
+
 export class VisitorManager {
-  private currentVisitor: VisitorResponse | null = null;
+  private currentVisitor: VisitorNullable = null;
 
   constructor(
     private readonly network: NetworkClient,
@@ -44,16 +46,17 @@ export class VisitorManager {
     // Compute referrer host and previous site
     let referrerHost = "";
     let previousSite = "";
-    if (globalThis.document?.referrer) {
-      previousSite = globalThis.document.referrer;
+    const referrer = globalThis.document?.referrer;
+    if (referrer) {
+      previousSite = referrer;
       try {
-        const refUrl = new URL(globalThis.document.referrer);
+        const refUrl = new URL(referrer);
         referrerHost = refUrl.hostname;
       } catch (e) {
         if (this.config.debug) {
           console.warn("[Tracking SDK] Failed to parse referrer URL", e);
         }
-        referrerHost = globalThis.document.referrer;
+        referrerHost = referrer;
       }
     }
 
@@ -70,7 +73,7 @@ export class VisitorManager {
       entry_page: entryPage,
       referrer_host: referrerHost,
       previous_site: previousSite,
-      
+
       // Campaign details
       acquisition_source: attribution.acquisition_source,
       acquisition_medium: attribution.acquisition_medium,
@@ -106,7 +109,7 @@ export class VisitorManager {
     }
   }
 
-  getCurrentVisitor(): VisitorResponse | null {
+  getCurrentVisitor(): VisitorNullable {
     return this.currentVisitor;
   }
 }

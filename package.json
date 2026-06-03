@@ -1,6 +1,6 @@
 {
   "name": "@dtransformers/tracking-kit",
-  "version": "0.0.1-alpha",
+  "version": "1.0.1",
   "description": "tracking sdk",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,7 +9,8 @@
   "scripts": {
     "build": "tsc --declaration",
     "start": "node ./dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "release": "tsc --declaration && export $(grep -v '^#' .env | xargs) && pnpm publish --no-git-checks"
   },
   "bugs": {
     "url": "https://github.com/dtransformers/tracking-kit.git/issues"
