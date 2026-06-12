@@ -5,4 +5,5 @@ export interface SDKConfig {
   autoTrack?: boolean;
   cookieDomain?: string;
   debug?: boolean;
+  pingInterval?: number;
 }

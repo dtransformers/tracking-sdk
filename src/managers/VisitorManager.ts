@@ -9,6 +9,7 @@ type VisitorNullable = VisitorResponse | null;
 
 export class VisitorManager {
   private currentVisitor: VisitorNullable = null;
+  private pingIntervalId?: ReturnType<typeof setInterval>;
 
   constructor(
     private readonly network: NetworkClient,
@@ -116,14 +117,35 @@ export class VisitorManager {
   async ping(message: string = "pong"): Promise<{ message: string }> {
     this.log("Sending ping request...", { message });
     await this.ensureSession();
-
+    
     const response = await this.network.request<{ message: string }>(
       "POST",
       "/api/v1/visitors/ping",
       { message }
     );
-
+    
     this.log("Ping response received", response);
     return response;
+  }
+
+  startPeriodicPing(intervalMs: number = 30000): void {
+    this.stopPeriodicPing();
+    this.log(`Starting periodic ping every ${intervalMs}ms`);
+    
+    this.pingIntervalId = setInterval(() => {
+      this.ping().catch((err) => {
+        if (this.config.debug) {
+          console.error(`[Tracking SDK] [VisitorManager] Periodic ping failed:`, err);
+        }
+      });
+    }, intervalMs);
+  }
+
+  stopPeriodicPing(): void {
+    if (this.pingIntervalId !== undefined) {
+      clearInterval(this.pingIntervalId);
+      this.pingIntervalId = undefined;
+      this.log("Stopped periodic ping");
+    }
   }
 }

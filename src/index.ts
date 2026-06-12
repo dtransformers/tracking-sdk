@@ -1,5 +1,8 @@
 import type { SDKConfig } from "./types/config";
-import type { CreatePageViewRequest, CreateCustomEventRequest } from "./types/events";
+import type {
+  CreatePageViewRequest,
+  CreateCustomEventRequest,
+} from "./types/events";
 
 import { StorageService } from "./core/Storage";
 import { NetworkClient } from "./core/Network";
@@ -15,7 +18,7 @@ export class TrackingSDK {
   private constructor(
     private readonly eventTracker: EventTracker,
     consentManager: ConsentManager,
-    private readonly visitorManager: VisitorManager
+    private readonly visitorManager: VisitorManager,
   ) {
     this.consent = consentManager;
   }
@@ -27,7 +30,9 @@ export class TrackingSDK {
   static async init(config: SDKConfig): Promise<TrackingSDK> {
     if (TrackingSDK._instance) {
       if (config.debug) {
-        console.log("[Tracking SDK] Already initialized, returning existing instance.");
+        console.log(
+          "[Tracking SDK] Already initialized, returning existing instance.",
+        );
       }
       return TrackingSDK._instance;
     }
@@ -42,15 +47,21 @@ export class TrackingSDK {
     const consentManager = new ConsentManager(network, storage);
     const eventTracker = new EventTracker(network, visitorManager, config);
 
-    // Initial handshake to create visitor and session
     await visitorManager.createVisitor();
 
-    // Enable auto tracking if configured
     if (config.autoTrack) {
       eventTracker.enableAutoTrack();
     }
 
-    const instance = new TrackingSDK(eventTracker, consentManager, visitorManager);
+    if (config.pingInterval !== undefined) {
+      visitorManager.startPeriodicPing(config.pingInterval);
+    }
+
+    const instance = new TrackingSDK(
+      eventTracker,
+      consentManager,
+      visitorManager,
+    );
     TrackingSDK._instance = instance;
     return instance;
   }
@@ -67,6 +78,20 @@ export class TrackingSDK {
    */
   async ping(message?: string): Promise<{ message: string }> {
     return this.visitorManager.ping(message);
+  }
+
+  /**
+   * Starts periodic pings to keep the visitor session active.
+   */
+  startPeriodicPing(intervalMs?: number): void {
+    this.visitorManager.startPeriodicPing(intervalMs);
+  }
+
+  /**
+   * Stops periodic pings.
+   */
+  stopPeriodicPing(): void {
+    this.visitorManager.stopPeriodicPing();
   }
 
   /**
@@ -93,7 +118,11 @@ export class TrackingSDK {
 
 // Export Types
 export type { SDKConfig } from "./types/config";
-export type { ConsentType, ConsentStatus, UpdateConsentRequest } from "./types/consent";
+export type {
+  ConsentType,
+  ConsentStatus,
+  UpdateConsentRequest,
+} from "./types/consent";
 export type {
   CreatePageViewRequest,
   CreateCustomEventRequest,
