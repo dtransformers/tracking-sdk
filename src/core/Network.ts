@@ -89,8 +89,8 @@ export class NetworkClient {
     if (serverUrl.endsWith("/")) {
       serverUrl = serverUrl.slice(0, -1);
     }
-    const fullUrl = `${serverUrl}${normalizedPath}${queryString ? `?${queryString}` : ""
-      }`;
+    const queryPart = queryString ? `?${queryString}` : "";
+    const fullUrl = `${serverUrl}${normalizedPath}${queryPart}`;
 
     this.log(`Requesting ${uppercaseMethod} ${fullUrl}`, {
       timestamp,
