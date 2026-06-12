@@ -5,6 +5,7 @@ import { StorageService } from "../core/Storage";
 import { VisitorResponse, CreateVisitorRequest } from "../types/visitor";
 import { collectDeviceInfo, generateFingerprintHash } from "../utils/fingerprint";
 import { parseAttributionParams, persistAttribution, getStoredAttribution } from "../utils/attribution";
+import { COOKIE_NAMES } from "../constants";
 
 type VisitorNullable = VisitorResponse | null;
 
@@ -114,8 +115,8 @@ export class VisitorManager {
    * @returns {Promise<void>} Resolves when the session is confirmed or newly created.
    */
   async ensureSession(force: boolean = false): Promise<void> {
-    const sessionId = this.storage.getCookie("session_id");
-    const visitorUuid = this.storage.getCookie("visitor_uuid");
+    const sessionId = this.storage.getCookie(COOKIE_NAMES.SESSION_ID);
+    const visitorUuid = this.storage.getCookie(COOKIE_NAMES.VISITOR_UUID);
 
     Logger.log("VisitorManager",
       `ensureSession: session_id=${sessionId}, visitor_uuid=${visitorUuid}, force=${force}`

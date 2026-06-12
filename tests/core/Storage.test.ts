@@ -9,14 +9,20 @@ describe("StorageService", () => {
 
   describe("LocalStorage Wrapper", () => {
     it("should set, get, and remove items with prefix", () => {
+      const setItemSpy = jest.spyOn(Storage.prototype, "setItem");
+      const removeItemSpy = jest.spyOn(Storage.prototype, "removeItem");
+
       storage.setLocal("key1", { user: "test" });
-      expect(globalThis.localStorage.setItem).toHaveBeenCalledWith("__tk_key1", '{"user":"test"}');
+      expect(setItemSpy).toHaveBeenCalledWith("__tk_key1", '{"user":"test"}');
 
       expect(storage.getLocal("key1")).toEqual({ user: "test" });
 
       storage.removeLocal("key1");
-      expect(globalThis.localStorage.removeItem).toHaveBeenCalledWith("__tk_key1");
+      expect(removeItemSpy).toHaveBeenCalledWith("__tk_key1");
       expect(storage.getLocal("key1")).toBeNull();
+
+      setItemSpy.mockRestore();
+      removeItemSpy.mockRestore();
     });
 
     it("should gracefully handle unavailable localStorage", () => {
@@ -32,32 +38,39 @@ describe("StorageService", () => {
 
   describe("Session Storage", () => {
     it("should handle session storage logic", () => {
+      const setItemSpy = jest.spyOn(Storage.prototype, "setItem");
+      const removeItemSpy = jest.spyOn(Storage.prototype, "removeItem");
+
       storage.setSession("session1", [1, 2]);
-      expect(globalThis.sessionStorage.setItem).toHaveBeenCalledWith("__tk_session1", "[1,2]");
+      expect(setItemSpy).toHaveBeenCalledWith("__tk_session1", "[1,2]");
       expect(storage.getSession("session1")).toEqual([1, 2]);
 
       storage.removeSession("session1");
-      expect(globalThis.sessionStorage.removeItem).toHaveBeenCalledWith("__tk_session1");
+      expect(removeItemSpy).toHaveBeenCalledWith("__tk_session1");
       expect(storage.getSession("session1")).toBeNull();
+
+      setItemSpy.mockRestore();
+      removeItemSpy.mockRestore();
     });
   });
 
   describe("Cookie Management", () => {
     it("should set a cookie with SameSite=Lax and Secure", () => {
-      const mockDoc = {
-        get cookie() { return cookieStore; },
-        set cookie(val) { cookieStore = val; }
-      };
-      
-      const original = globalThis.document;
-      Object.defineProperty(globalThis, "document", { value: mockDoc, writable: true });
-      expect(document.cookie).toContain("my_cookie=cookie_val");
-      expect(storage.getCookie("my_cookie")).toBe("val1");
+      let cookieStore = "";
+      const cookieSetSpy = jest.spyOn(document, "cookie", "set").mockImplementation((val) => {
+        cookieStore = val;
+      });
+      const cookieGetSpy = jest.spyOn(document, "cookie", "get").mockImplementation(() => "my_cookie=cookie_val");
+
+      storage.setCookie("my_cookie", "cookie_val");
+      expect(cookieStore).toContain("my_cookie=cookie_val");
+      expect(storage.getCookie("my_cookie")).toBe("cookie_val");
 
       storage.deleteCookie("my_cookie");
       expect(cookieStore).toContain("expires=");
 
-      globalThis.document = original;
+      cookieSetSpy.mockRestore();
+      cookieGetSpy.mockRestore();
     });
 
     it("should return null if cookie is not found", () => {

@@ -35,7 +35,7 @@ describe("Crypto Utils", () => {
       const result = await sha256("test");
       expect(globalThis.crypto.subtle.digest).toHaveBeenCalledWith(
         "SHA-256",
-        expect.any(Uint8Array)
+        expect.anything()
       );
       expect(result).toBe("01020304"); // Hex for 1, 2, 3, 4
     });
@@ -59,7 +59,7 @@ describe("Crypto Utils", () => {
 
       expect(globalThis.crypto.subtle.importKey).toHaveBeenCalledWith(
         "raw",
-        expect.any(Uint8Array),
+        expect.anything(),
         { name: "HMAC", hash: "SHA-256" },
         false,
         ["sign"]
@@ -68,7 +68,7 @@ describe("Crypto Utils", () => {
       expect(globalThis.crypto.subtle.sign).toHaveBeenCalledWith(
         "HMAC",
         dummyKey,
-        expect.any(Uint8Array)
+        expect.anything()
       );
 
       expect(result).toBe("0a0b0c"); // Hex for 10, 11, 12

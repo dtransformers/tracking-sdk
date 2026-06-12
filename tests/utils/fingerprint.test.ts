@@ -74,31 +74,19 @@ describe("Fingerprint Utils", () => {
     let originalWindow: any;
 
     beforeAll(() => {
-      originalNavigator = globalThis.navigator;
-      originalWindow = globalThis.window;
+      // no-op, will use spyOn
     });
 
     afterAll(() => {
-      Object.defineProperty(globalThis, "navigator", { value: originalNavigator, writable: true });
-      Object.defineProperty(globalThis, "window", { value: originalWindow, writable: true });
+      jest.restoreAllMocks();
     });
 
     it("should collect all properties safely", () => {
-      Object.defineProperty(globalThis, "navigator", {
-        value: {
-          userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/114.0.0",
-          platform: "Win32",
-          language: "en-US",
-        },
-        writable: true
-      });
+      jest.spyOn(globalThis.navigator, "userAgent", "get").mockReturnValue("Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/114.0.0");
+      jest.spyOn(globalThis.navigator as any, "platform", "get").mockReturnValue("Win32");
+      jest.spyOn(globalThis.navigator, "language", "get").mockReturnValue("en-US");
 
-      Object.defineProperty(globalThis, "window", {
-        value: {
-          screen: { width: 1920, height: 1080 }
-        },
-        writable: true
-      });
+      jest.spyOn(globalThis.window, "screen", "get").mockReturnValue({ width: 1920, height: 1080 } as any);
 
       const info = collectDeviceInfo();
       expect(info.browser).toBe("Chrome");

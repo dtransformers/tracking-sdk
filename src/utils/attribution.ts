@@ -68,6 +68,12 @@ export function parseAttributionParams(search: string): AttributionData {
   data.campaign_content = get("campaign_content") || data.utm_content;
   data.campaign_term = get("campaign_term") || data.utm_term;
 
+  for (const key of Object.keys(data) as Array<keyof AttributionData>) {
+    if (data[key] === undefined) {
+      delete data[key];
+    }
+  }
+
   return data;
 }
 
@@ -145,7 +151,9 @@ export function extractClickIds(search: string): PlatformClickIds {
   return clickIds;
 }
 
-const STORAGE_KEY = "__tk_attribution";
+import { STORAGE_KEYS } from "../constants";
+
+const STORAGE_KEY = STORAGE_KEYS.ATTRIBUTION;
 
 export interface StorageAdapter {
   setLocal(key: string, value: unknown): void;

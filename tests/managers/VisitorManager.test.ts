@@ -38,7 +38,9 @@ describe("VisitorManager", () => {
     (attributionUtils.parseAttributionParams as jest.Mock).mockReturnValue({
       acquisition_source: "google",
     });
-    (attributionUtils.getStoredAttribution as jest.Mock).mockReturnValue({});
+    (attributionUtils.getStoredAttribution as jest.Mock).mockReturnValue({
+      acquisition_source: "google",
+    });
 
     // Mock JS globals
     Object.defineProperty(document, "referrer", { value: "https://google.com", writable: true, configurable: true });

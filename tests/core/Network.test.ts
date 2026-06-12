@@ -61,7 +61,7 @@ describe("NetworkClient", () => {
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
-          json: async () => ({ success: "retried" }),
+          text: async () => JSON.stringify({ success: "retried" }),
         });
 
       // Using a short timeout mock to speed up test

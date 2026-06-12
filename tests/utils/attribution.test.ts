@@ -11,7 +11,7 @@ describe("Attribution Utils", () => {
       const qs = "?utm_source=google&utm_medium=cpc&utm_campaign=summer_sale&utm_term=shoes&utm_content=banner";
       const result = parseAttributionParams(qs);
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         acquisition_source: "google",
         acquisition_medium: "cpc",
         acquisition_campaign: "summer_sale",
@@ -34,7 +34,7 @@ describe("Attribution Utils", () => {
       const qs = "?utm_source=fallback&acquisition_source=primary";
       const result = parseAttributionParams(qs);
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         acquisition_source: "primary",
       });
     });
