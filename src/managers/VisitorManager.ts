@@ -21,6 +21,17 @@ export class VisitorManager {
     this.network.setUnauthorizedHandler(() => this.ensureSession(true));
   }
 
+  /**
+   * @function createVisitor
+   * @description Creates a new visitor session
+   * @description Contract:
+   * Collects device fingerprinting information and current attribution parameters from the URL.
+   * Computes the entry page, referrer host, and previous site based on the browser context.
+   * Sends a POST request to the tracking server to create a new visitor session and persists the
+   * returned session in local storage/cookies automatically.
+   * 
+   * @returns {Promise<VisitorResponse>} The created visitor response object from the server.
+   */
   async createVisitor(): Promise<VisitorResponse> {
     Logger.log("VisitorManager", "Collecting device info and fingerprint...");
     const deviceInfo = collectDeviceInfo();
@@ -91,11 +102,22 @@ export class VisitorManager {
     return response;
   }
 
-  async ensureSession(force = false): Promise<void> {
+  /**
+   * @function ensureSession
+   * @description Ensures a valid visitor session exists
+   * Contract:
+   * Verifies if a valid session and visitor UUID exist in the storage. 
+   * If either is missing, or if a force refresh is requested, it automatically invokes `createVisitor` 
+   * to establish a new session. This ensures that subsequent tracking events have a valid session context.
+   * 
+   * @param {boolean} [force=false] - If true, forces the creation of a new session even if one exists.
+   * @returns {Promise<void>} Resolves when the session is confirmed or newly created.
+   */
+  async ensureSession(force: boolean = false): Promise<void> {
     const sessionId = this.storage.getCookie("session_id");
     const visitorUuid = this.storage.getCookie("visitor_uuid");
 
-    Logger.log("VisitorManager", 
+    Logger.log("VisitorManager",
       `ensureSession: session_id=${sessionId}, visitor_uuid=${visitorUuid}, force=${force}`
     );
 
@@ -105,28 +127,58 @@ export class VisitorManager {
     }
   }
 
+  /**
+   * @function getCurrentVisitor
+   * @description Gets the current visitor
+   * Contract:
+   * Returns the currently tracked visitor data from the in-memory cache, which was populated
+   * during the last `createVisitor` call.
+   * 
+   * @returns {VisitorNullable} The current visitor object or null if no session has been initialized.
+   */
   getCurrentVisitor(): VisitorNullable {
     return this.currentVisitor;
   }
 
+  /**
+   * @function ping
+   * @description Sends a ping request to the server
+   * Contract:
+   * Sends a ping request to the server to verify the connection and keep the current session active.
+   * Automatically calls `ensureSession` before executing to guarantee session integrity.
+   * 
+   * @param {string} [message="pong"] - An optional message payload to send to the server.
+   * @returns {Promise<{ message: string }>} Resolves with the server's response message.
+   */
   async ping(message: string = "pong"): Promise<{ message: string }> {
     Logger.log("VisitorManager", "Sending ping request...", { message });
     await this.ensureSession();
-    
+
     const response = await this.network.request<{ message: string }>(
       "POST",
       "/api/v1/visitors/ping",
       { message }
     );
-    
+
     Logger.log("VisitorManager", "Ping response received", response);
     return response;
   }
 
+  /**
+   * @function startPeriodicPing
+   * @description Starts periodic pings
+   * Contract:
+   * Initializes a background interval that repeatedly calls the `ping` method.
+   * If an interval is already running, it stops the existing one before starting the new one.
+   * Any errors thrown by the periodic ping are caught and logged to prevent unhandled promise rejections.
+   * 
+   * @param {number} [intervalMs=30000] - The interval duration in milliseconds between consecutive pings.
+   * @returns {void}
+   */
   startPeriodicPing(intervalMs: number = 30000): void {
     this.stopPeriodicPing();
     Logger.log("VisitorManager", `Starting periodic ping every ${intervalMs}ms`);
-    
+
     this.pingIntervalId = setInterval(() => {
       this.ping().catch((err) => {
         Logger.error("VisitorManager", `Periodic ping failed:`, err);
@@ -134,6 +186,14 @@ export class VisitorManager {
     }, intervalMs);
   }
 
+  /**
+   * @function stopPeriodicPing
+   * @description Stops periodic pings
+   * Contract:
+   * Clears the currently running periodic ping interval, if one exists, preventing further background pings.
+   * 
+   * @returns {void}
+   */
   stopPeriodicPing(): void {
     if (this.pingIntervalId !== undefined) {
       clearInterval(this.pingIntervalId);

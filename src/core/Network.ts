@@ -16,10 +16,34 @@ export class NetworkClient {
 
   constructor(private readonly config: SDKConfig) { }
 
+  /**
+   * Contract:
+   * Registers a callback function to handle `401 Unauthorized` errors globally.
+   * When a request fails with 401, this handler is executed (e.g., to refresh a session)
+   * before the failed request is automatically retried once.
+   * 
+   * @param {UnauthorizedHandler} handler - The async callback function to execute on 401 errors.
+   * @returns {void}
+   */
   setUnauthorizedHandler(handler: UnauthorizedHandler): void {
     this.unauthorizedHandler = handler;
   }
 
+  /**
+   * Contract:
+   * Makes an authenticated HTTP request to the tracking server, with built-in retry logic
+   * for transient network failures or 5xx server errors. The method automatically signs
+   * the payload, attaches proper headers, handles JSON serialization/deserialization, and
+   * implements exponential backoff between retries.
+   * 
+   * @template T The expected return type of the parsed JSON response.
+   * @param {string} method - The HTTP method (e.g., "GET", "POST", "PUT").
+   * @param {string} path - The API endpoint path (e.g., "/api/v1/events/custom").
+   * @param {unknown} [body] - The request body payload, to be serialized as JSON.
+   * @param {string} [queryString] - Optional query string parameters.
+   * @param {number} [maxRetries=3] - Maximum number of retries for retryable errors.
+   * @returns {Promise<T>} Resolves with the parsed response body upon success.
+   */
   async request<T>(
     method: string,
     path: string,
@@ -44,6 +68,19 @@ export class NetworkClient {
     throw new Error("Max retries exceeded");
   }
 
+  /**
+   * Contract:
+   * Internally prepares the request parameters, ensuring the path is normalized and URL is properly built.
+   * Generates a cryptographic signature (HMAC-SHA256) of the canonical request format to authenticate 
+   * the payload against the server, alongside timestamp and nonce for replay protection.
+   * 
+   * @private
+   * @param {string} method - The HTTP method.
+   * @param {string} path - The API path.
+   * @param {unknown} body - The un-serialized request body.
+   * @param {string | undefined} queryString - The raw query string.
+   * @returns {Promise<{ fullUrl: string; fetchOptions: RequestInit; normalizedPath: string }>} Prepared fetch arguments.
+   */
   private async prepareRequest(
     method: string,
     path: string,
@@ -108,6 +145,21 @@ export class NetworkClient {
     return { fullUrl, fetchOptions, normalizedPath };
   }
 
+  /**
+   * Contract:
+   * The underlying fetch executor. Calls `prepareRequest` and fires the native `fetch`.
+   * It handles standard HTTP errors, auto-recovers from `401 Unauthorized` using the registered
+   * `unauthorizedHandler`, and parses successful responses as JSON.
+   * 
+   * @private
+   * @template T
+   * @param {string} method - HTTP method.
+   * @param {string} path - Target path.
+   * @param {unknown} body - Payload body.
+   * @param {string | undefined} queryString - URL query parameters.
+   * @param {boolean} isRetry - Indicates if this call is an automatic 401 recovery retry.
+   * @returns {Promise<T>} Resolves with the parsed JSON response.
+   */
   private async requestInternal<T>(
     method: string,
     path: string,

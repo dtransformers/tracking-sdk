@@ -17,8 +17,20 @@ export class EventTracker {
     private readonly network: NetworkClient,
     private readonly visitorManager: VisitorManager,
     private readonly config: SDKConfig
-  ) {}
+  ) { }
 
+  /**
+   * @function trackPageView
+   * @description Tracks a page view event
+   * Contract:
+   * Captures a page view event and sends it to the tracking server.
+   * If `data` is partially provided, it automatically fills in missing fields (url, referrer, title) 
+   * by inspecting the global `window` and `document` objects.
+   * Ensures that a valid session exists prior to tracking the event.
+   * 
+   * @param {Partial<CreatePageViewRequest>} [data] - Optional partial page view data overriding auto-collected values.
+   * @returns {Promise<void>} Resolves when the page view request completes successfully.
+   */
   async trackPageView(data?: Partial<CreatePageViewRequest>): Promise<void> {
     Logger.log("EventTracker", "Tracking page view...");
     await this.visitorManager.ensureSession();
@@ -34,6 +46,17 @@ export class EventTracker {
     Logger.log("EventTracker", "Page view tracked successfully", payload);
   }
 
+  /**
+   * @function trackCustomEvent
+   * @description Tracks a custom user-defined event
+   * Contract:
+   * Tracks a custom user-defined event, attaching SDK metadata, timestamps, and an auto-incrementing sequence number.
+   * If URL click IDs (e.g. gclid, fbclid) are not explicitly provided, it parses them from the current URL.
+   * Ensures the visitor session is established before sending the payload.
+   * 
+   * @param {CreateCustomEventRequest} data - The custom event details including name, category, and specific properties.
+   * @returns {Promise<void>} Resolves when the custom event is successfully tracked on the server.
+   */
   async trackCustomEvent(data: CreateCustomEventRequest): Promise<void> {
     Logger.log("EventTracker", `Tracking custom event: ${data.name}...`);
     await this.visitorManager.ensureSession();
@@ -59,6 +82,17 @@ export class EventTracker {
     Logger.log("EventTracker", "Custom event tracked successfully", payload);
   }
 
+  /**
+   * @function enableAutoTrack
+   * @description Enables automatic page view tracking
+   * Contract:
+   * Enables automatic page view tracking for Single Page Applications (SPAs).
+   * It tracks the initial page load, patches the History API (`pushState`, `replaceState`),
+   * and listens to `popstate` events to automatically detect route changes and fire subsequent page views.
+   * Idempotent; does nothing if auto tracking is already enabled.
+   * 
+   * @returns {void}
+   */
   enableAutoTrack(): void {
     if (this.isAutoTracking) return;
     this.isAutoTracking = true;
@@ -97,6 +131,15 @@ export class EventTracker {
     globalThis.window.addEventListener("popstate", this.popStateListener);
   }
 
+  /**
+   * @function disableAutoTrack
+   * @description Disables automatic page view tracking
+   * Contract:
+   * Disables auto tracking by restoring the original History API methods (`pushState`, `replaceState`)
+   * and removing the `popstate` event listener. This cleans up global modifications made by `enableAutoTrack`.
+   * 
+   * @returns {void}
+   */
   disableAutoTrack(): void {
     if (!this.isAutoTracking) return;
     this.isAutoTracking = false;
@@ -119,6 +162,17 @@ export class EventTracker {
     }
   }
 
+  /**
+   * @function handleSpaNavigation
+   * @description Handles SPA navigation events
+   * Contract:
+   * Internal handler called upon detected SPA navigation events.
+   * Compares the new URL to the last tracked URL to prevent duplicate tracking,
+   * updates the last known URL, and fires a page view if a genuine route change occurred.
+   * 
+   * @private
+   * @returns {void}
+   */
   private handleSpaNavigation(): void {
     if (globalThis.window === undefined) return;
     const currentUrl = globalThis.window.location.href;

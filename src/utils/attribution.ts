@@ -15,6 +15,18 @@ export interface AttributionData extends PlatformClickIds {
   campaign_term?: string;
 }
 
+/**
+ * @function parseAttributionParams
+ * @description Parses URL query string into attribution data
+ * Contract:
+ * Parses a raw URL query string into a structured `AttributionData` object.
+ * It systematically extracts standard UTM parameters (e.g., `utm_source`), known platform click IDs
+ * (e.g., `gclid`, `fbclid`), and resolves explicit campaign mappings. If standard UTMs are present,
+ * they automatically fall back to populate the `acquisition_*` fields.
+ * 
+ * @param {string} search - The raw URL query string (e.g., `?utm_source=google&gclid=123`).
+ * @returns {AttributionData} An object containing all successfully parsed attribution metadata.
+ */
 export function parseAttributionParams(search: string): AttributionData {
   if (typeof URLSearchParams === "undefined") {
     return {};
@@ -69,7 +81,15 @@ export interface CampaignData {
 }
 
 /**
- * Extracts only the campaign-related fields from a query string.
+ * @function extractCampaignData
+ * @description Extracts campaign data from URL query string
+ * Contract:
+ * Filters the full parsed attribution data down to strictly the campaign-related metadata fields.
+ * This is useful when sending event payloads where deep click-IDs or raw UTMs are not necessary,
+ * but the normalized `acquisition_*` and `campaign_*` fields are required.
+ * 
+ * @param {string} search - The raw URL query string.
+ * @returns {CampaignData} A narrowed object containing only campaign tracking fields.
  */
 export function extractCampaignData(search: string): CampaignData {
   const parsed = parseAttributionParams(search);
@@ -84,7 +104,15 @@ export function extractCampaignData(search: string): CampaignData {
 }
 
 /**
- * Extracts click IDs from the parsed attribution data.
+ * @function extractClickIds
+ * @description Extracts click IDs from URL query string
+ * Contract:
+ * Filters the full parsed attribution data down to strictly the known platform click IDs 
+ * (e.g., Google's `gclid`, Facebook's `fbclid`). This isolates identifier parameters from general 
+ * campaign information, often required for server-to-server conversion syncing.
+ * 
+ * @param {string} search - The raw URL query string.
+ * @returns {PlatformClickIds} An object mapping known platform ID keys to their found string values.
  */
 export function extractClickIds(search: string): PlatformClickIds {
   const parsed = parseAttributionParams(search);
@@ -126,6 +154,18 @@ export interface StorageAdapter {
   getSession<T>(key: string): T | null;
 }
 
+/**
+ * @function persistAttribution
+ * @description Persists attribution data to storage
+ * Contract:
+ * Writes newly parsed attribution data into both `localStorage` and `sessionStorage`.
+ * It first verifies that the parsed object contains at least one defined value to avoid 
+ * overwriting existing stored attribution data with empty sessions.
+ * 
+ * @param {AttributionData} data - The newly parsed attribution metadata object.
+ * @param {StorageAdapter} storage - The storage service adapter handling the actual IO.
+ * @returns {void}
+ */
 export function persistAttribution(data: AttributionData, storage: StorageAdapter): void {
   // Only persist if we actually have some attribution data
   const hasData = Object.values(data).some((val) => val !== undefined);
@@ -135,6 +175,17 @@ export function persistAttribution(data: AttributionData, storage: StorageAdapte
   storage.setSession(STORAGE_KEY, data);
 }
 
+/**
+ * @function getStoredAttribution
+ * @description Gets attribution data from storage
+ * Contract:
+ * Retrieves previously saved attribution data from local or session storage.
+ * It prefers `localStorage` for long-term persistence across sessions but falls back to 
+ * `sessionStorage` if necessary. If no data exists, it returns an empty object.
+ * 
+ * @param {StorageAdapter} storage - The storage service adapter to read from.
+ * @returns {AttributionData} The restored attribution metadata, or an empty object.
+ */
 export function getStoredAttribution(storage: StorageAdapter): AttributionData {
   const localData = storage.getLocal<AttributionData>(STORAGE_KEY);
   if (localData) return localData;
