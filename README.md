@@ -1,251 +1,149 @@
-# Tracking SDK
+# @dtransformers/tracking-kit
 
-The Tracking SDK is a lightweight JavaScript package embedded into customer websites to collect visitor activity, manage visitor sessions, handle consent, and communicate securely with the Tracking Server through REST APIs.
-The SDK must support:
+A lightweight, secure, and fully-featured JavaScript Tracking SDK. It embeds into customer websites to collect visitor activity, manage secure sessions, handle user consent, track attributions, and communicate robustly with the backend tracking server.
 
-- Visitor identification
-- Session management
-- Page tracking
-- User interaction tracking
-- Custom event tracking
-- Consent management
-- Attribution tracking
-- Secure API communication
+## Features
 
-## SDK Initialization
+- **Visitor Identification**: Automatic device fingerprinting and identity resolution.
+- **Session Management**: Secure cookie-based tracking with background keep-alive pings.
+- **Page Tracking**: Automatic tracking of initial page loads and SPA (Single Page Application) routing.
+- **Custom Event Tracking**: Track detailed user interactions with deeply typed payloads.
+- **Consent Management**: Granular control over tracking, marketing, and functional cookies.
+- **Attribution**: Automatically extracts UTMs and platform click IDs (gclid, fbclid, etc.).
+- **Robust Networking**: Built-in HMAC-SHA256 payload signing, 401 recovery, and automatic retries with exponential backoff.
+
+## Installation
+
+```bash
+npm install @dtransformers/tracking-kit
+# or
+pnpm add @dtransformers/tracking-kit
+# or
+yarn add @dtransformers/tracking-kit
+```
+
+## Quick Start & Initialization
+
+Initialize the `TrackingSDK` singleton at the root of your application.
 
 ```typescript
-import { TrackingSDK } from '@dtransformers/tracking-kit';
+import { TrackingSDK } from "@dtransformers/tracking-kit";
 
-TrackingSDK.init({
-  publicKey: string;
-  secretKey: string;
-  serverUrl: string;
-  autoTrack?: boolean;
-cookieDomain?: string;
-debug?: boolean;
+const sdk = await TrackingSDK.init({
+  publicKey: "YOUR_PUBLIC_KEY",
+  secretKey: "YOUR_SECRET_KEY",
+  serverUrl: "https://api.yourtracking.com",
+  autoTrack: true, // Automatically tracks page views and SPA navigation
+  debug: true, // Enables detailed console logging
+  pingInterval: 30000, // Keep-alive ping interval in milliseconds
 });
 ```
 
-## SDK Initialization Configuration
+### Configuration Options
 
-| Field        | Required | Description                                     |
-| ------------ | -------- | ----------------------------------------------- |
-| publicKey    | Yes      | Public API key                                  |
-| secretKey    | Yes      | Secret key used for request signing             |
-| serverUrl    | Yes      | Tracking server base URL                        |
-| autoTrack    | No       | Automatically track page views and interactions |
-| cookieDomain | No       | Cookie scope                                    |
-| debug        | No       | Enable SDK logging                              |
+| Option         | Type      | Required | Description                                                  |
+| -------------- | --------- | -------- | ------------------------------------------------------------ |
+| `publicKey`    | `string`  | Yes      | Public API key.                                              |
+| `secretKey`    | `string`  | Yes      | Secret key used for secure HMAC-SHA256 request signing.      |
+| `serverUrl`    | `string`  | Yes      | The base URL of the Tracking Server.                         |
+| `autoTrack`    | `boolean` | No       | If true, automatically tracks page views and SPA routes.     |
+| `cookieDomain` | `string`  | No       | Scope cookies to a specific domain.                          |
+| `debug`        | `boolean` | No       | If true, enables internal logging to the console.            |
+| `pingInterval` | `number`  | No       | Interval (ms) for background keep-alive pings to the server. |
 
-## Authentication
+## SDK Usage
 
-Every request sent to the tracking server must contain:
+Once initialized, the `TrackingSDK` instance provides access to the core managers and APIs.
 
-- X-API-Key
-- X-Signature
-- X-Timestamp
-- X-Nonce
+### 1. Page Views & Auto Tracking
 
-## Signature Generation
-
-- METHOD
-- PATH
-- QUERY_STRING
-- TIMESTAMP
-- NONCE
-- BODY
-
-signature = Hmac_Sha256(canonicalRequest, SECRET_KEY)
-
-## LifeCycle:
-
-### Visitors
-
-Automatic Visitor Creation
-During initialization the SDK must:
-
-1. Generate device fingerprint
-2. Collect browser metadata
-3. Detect OS
-4. Detect device type
-5. Detect language
-6. Detect timezone
-7. Detect attribution data
-8. Create visitor
-
-Create Visitor API:
-
-POST /api/v1/visitors
-
-Request:
+If `autoTrack: true` is passed during initialization, the SDK automatically tracks page loads and hooks into the History API for SPA navigation. You can also trigger tracking manually:
 
 ```typescript
-{
-  browser: string;
-  browser_version: string;
+// Manually track a page view
+await sdk.trackPageView({
+  url: window.location.href,
+  title: document.title,
+  referrer: document.referrer,
+});
 
-  os: string;
-  device_type: string;
-
-  fingerprint_hash: string;
-
-  screen_width: number;
-  screen_height: number;
-
-  language: string;
-  timezone: string;
-
-  entry_page: string;
-
-  referrer_host: string;
-  previous_site: string;
-
-  acquisition_source?: string;
-  acquisition_medium?: string;
-  acquisition_campaign?: string;
-
-  campaign_id?: string;
-  campaign_content?: string;
-  campaign_term?: string;
-}
+// Toggle auto-tracking dynamically
+sdk.disableAutoTrack();
+sdk.enableAutoTrack();
 ```
 
-### Device Fingerprinting
+### 2. Custom Event Tracking
 
-The SDK must generate a stable fingerprint using:
+Track custom user interactions and commerce events using the highly structured `track` method.
 
 ```typescript
-const fingerprintHash = SHA256(
-  userAgent + language + timezone + screenWidth + screenHeight + platform,
-);
+await sdk.track({
+  category: "commerce",
+  type: "purchase",
+  name: "Premium Subscription",
+  page_id: 123,
+  // Detailed attribution and DOM context are automatically captured internally
+});
 ```
 
-### Session Management
+### 3. Consent Management
 
-After visitor creation the server returns:
-
-```http
-Set-Cookie: visitor_uuid=xxx; Path=/; Domain=yourdomain.com; SameSite=Lax; Secure;
-Set-Cookie: session_id=yyy; Path=/; Domain=yourdomain.com; SameSite=Lax; Secure;
-```
-
-The SDK must:
-
-- Store cookies
-- Attach cookies to every request
-- Detect session expiration
-- Create a new session when needed
-
-### Attribution Tracking
-
-The SDK must automatically capture attribution parameters from URL query strings.
+The SDK provides granular APIs to manage visitor consent for different data processing categories (`tracking`, `marketing`, `functional`).
 
 ```typescript
-{
-  utm_source?: string;
-  utm_medium?: string;
-  utm_campaign?: string;
-  utm_term?: string;
-  utm_content?: string;
+// Grant consent for tracking
+await sdk.consent.grant("tracking");
 
-  gclid?: string;
-  gbraid?: string;
-  wbraid?: string;
+// Deny marketing cookies
+await sdk.consent.deny("marketing");
 
-  fbclid?: string;
-  fbc?: string;
-  fbp?: string;
-
-  ttclid?: string;
-  ttp?: string;
-
-  twclid?: string;
-
-  msclkid?: string;
-
-  li_fat_id?: string;
-
-  epik?: string;
-
-  dclid?: string;
-
-  ScCid?: string;
-
-  liveramp_ats_id?: string;
-}
+// Check current consent status
+const status = await sdk.consent.getStatus("tracking"); // "granted" | "denied" | "pending"
 ```
 
-The SDK should persist attribution data in:
+### 4. Session & Connection Management
 
-- sessionStorage
-- local storage
-
-### Consent Management
-
-The SDK must provide APIs for managing visitor consent.
-endpoint: POST /api/v1/consents
-payload:
+The SDK automatically establishes sessions and device fingerprints upon initialization. You can verify network health using the ping APIs.
 
 ```typescript
-{
-  consent_type: "tracking" | "marketing" | "functional" | "none";
+// Send a one-off ping to the server
+const response = await sdk.ping("hello");
+console.log(response.message); // "pong"
 
-  status: "granted" | "denied" | "pending";
-}
+// Start or stop background keep-alive pings manually
+sdk.startPeriodicPing();
+sdk.stopPeriodicPing();
 ```
 
-sdk.consent.grant(type);
+### 5. Internal Logger
 
-sdk.consent.deny(type);
-
-sdk.consent.getStatus(type);
-
-## Page View Tracking
-
-The SDK must automatically track:
-
-- Initial page load
-- SPA route changes
-- Browser navigation
-
-Endpoint: POST /api/v1/events/pageviews
-payload:
+The SDK uses a centralized internal logger that can be utilized by developers when debugging is enabled.
 
 ```typescript
-{
-  url: string;
-  referrer: string;
-  title: string;
-}
+sdk.logger.log("CustomApp", "Hello from app");
+sdk.logger.warn("CustomApp", "Watch out");
+sdk.logger.error("CustomApp", "Failure", new Error("Oops"));
 ```
 
-## Custom Event Tracking
+## Advanced: Network & Security Architecture
 
-endpoint: POST /api/v1/events/custom
-payload:
+The SDK handles complex security and persistence automatically:
 
-```
-{
-  category: string;
-  type: string;
-  name: string;
+- **Request Signing**: Every request is signed using HMAC-SHA256 based on the HTTP method, path, query strings, body, timestamp, and a nonce.
+- **Resilience**: Features automatic retries with exponential backoff for 5xx errors or transient network failures.
+- **Token Recovery**: Handles 401 Unauthorized responses by automatically fetching a new token and replaying the failed request.
+- **Device Fingerprinting**: Generates stable SHA-256 fingerprints based on browser heuristics.
 
-  occurred_at: string;
+## API Reference & Documentation
 
-  page_id: number;
+This SDK includes comprehensive JSDoc comments across all core managers and utilities. To generate and view the full HTML API reference locally:
 
-  schema_version: string;
-
-  sdk_name: string;
-  sdk_version: string;
-
-  sequence: number;
-
-  click_ids: AttributionContext;
-
-  target: EventTarget;
-}
-```
-
-sdk.track(event);
+1. Install development dependencies:
+   ```bash
+   pnpm install
+   ```
+2. Run the documentation generator:
+   ```bash
+   pnpm run docs
+   ```
+3. Open `docs/index.html` in your browser to view detailed types, inputs, outputs, and behavioral contracts for the entire SDK.
