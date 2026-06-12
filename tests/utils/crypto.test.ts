@@ -3,26 +3,34 @@ import { sha256, hmacSHA256, generateNonce } from "../../src/utils/crypto";
 describe("Crypto Utils", () => {
   let originalCrypto: Crypto;
 
+  const setCrypto = (mockCrypto: any) => {
+    Object.defineProperty(globalThis, "crypto", {
+      value: mockCrypto,
+      configurable: true,
+      writable: true,
+    });
+  };
+
   beforeAll(() => {
     // Save original if any
     originalCrypto = globalThis.crypto;
   });
 
   afterAll(() => {
-    globalThis.crypto = originalCrypto;
+    setCrypto(originalCrypto);
   });
 
   describe("sha256", () => {
     it("should compute the correct sha256 hash", async () => {
       // Mock subtle.digest to return a fixed buffer for "test"
       const dummyBuffer = new Uint8Array([1, 2, 3, 4]).buffer;
-      globalThis.crypto = {
+      setCrypto({
         ...globalThis.crypto,
         subtle: {
           ...globalThis.crypto?.subtle,
           digest: jest.fn().mockResolvedValue(dummyBuffer),
         }
-      } as any;
+      });
 
       const result = await sha256("test");
       expect(globalThis.crypto.subtle.digest).toHaveBeenCalledWith(
@@ -38,14 +46,14 @@ describe("Crypto Utils", () => {
       const dummyKey = {} as CryptoKey;
       const dummySignature = new Uint8Array([10, 11, 12]).buffer;
 
-      globalThis.crypto = {
+      setCrypto({
         ...globalThis.crypto,
         subtle: {
           ...globalThis.crypto?.subtle,
           importKey: jest.fn().mockResolvedValue(dummyKey),
           sign: jest.fn().mockResolvedValue(dummySignature),
         }
-      } as any;
+      });
 
       const result = await hmacSHA256("message", "secret");
 
@@ -69,22 +77,22 @@ describe("Crypto Utils", () => {
 
   describe("generateNonce", () => {
     it("should use randomUUID if available", () => {
-      globalThis.crypto = {
+      setCrypto({
         randomUUID: jest.fn().mockReturnValue("fake-uuid-from-randomUUID")
-      } as any;
+      });
 
       expect(generateNonce()).toBe("fake-uuid-from-randomUUID");
     });
 
     it("should use getRandomValues if randomUUID is missing", () => {
-      globalThis.crypto = {
+      setCrypto({
         getRandomValues: jest.fn((arr: Uint8Array) => {
           for (let i = 0; i < arr.length; i++) {
             arr[i] = 1; // Fake random data
           }
           return arr;
         })
-      } as any;
+      });
 
       const nonce = generateNonce();
       // UUID format check with variant modifications
@@ -92,7 +100,7 @@ describe("Crypto Utils", () => {
     });
 
     it("should fallback to Math.random if Web Crypto is unavailable", () => {
-      globalThis.crypto = undefined as any; // Remove crypto
+      setCrypto(undefined); // Remove crypto
       
       const mockMath = Object.create(globalThis.Math);
       mockMath.random = () => 0.5; // Always return 0.5 (results in '8')

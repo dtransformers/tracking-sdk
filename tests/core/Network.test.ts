@@ -56,6 +56,7 @@ describe("NetworkClient", () => {
         .mockResolvedValueOnce({
           ok: false,
           status: 500,
+          text: async () => "Internal Server Error",
         })
         .mockResolvedValueOnce({
           ok: true,
@@ -101,7 +102,7 @@ describe("NetworkClient", () => {
 
     it("should handle 401 Unauthorized via callbacks", async () => {
       // Mock fetch to return 401
-      (globalThis.fetch as jest.Mock).mockResolvedValueOnce({
+      (globalThis.fetch as jest.Mock).mockResolvedValue({
         ok: false,
         status: 401,
         statusText: "Unauthorized",

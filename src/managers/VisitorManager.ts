@@ -150,7 +150,7 @@ export class VisitorManager {
    * @param {string} [message="pong"] - An optional message payload to send to the server.
    * @returns {Promise<{ message: string }>} Resolves with the server's response message.
    */
-  async ping(message: string = "pong"): Promise<{ message: string }> {
+  async ping(message: string = "ping"): Promise<{ message: string }> {
     Logger.log("VisitorManager", "Sending ping request...", { message });
     await this.ensureSession();
 

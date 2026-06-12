@@ -78,7 +78,7 @@ describe("VisitorManager", () => {
 
       expect(mockNetwork.request).toHaveBeenCalledWith(
         "POST",
-        "/api/v1/visitors",
+        "/api/v1/visitors/",
         expect.objectContaining({
           browser: "Chrome",
           fingerprint_hash: "fake-hash",
@@ -101,9 +101,9 @@ describe("VisitorManager", () => {
       
       expect(mockNetwork.request).toHaveBeenCalledWith(
         "POST",
-        "/api/v1/visitors",
+        "/api/v1/visitors/",
         expect.objectContaining({
-          entry_page: "Unknown",
+          entry_page: "/",
         })
       );
 
