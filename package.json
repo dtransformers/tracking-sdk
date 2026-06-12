@@ -10,7 +10,9 @@
     "build": "tsc --declaration",
     "docs": "typedoc --out docs src/index.ts",
     "start": "node ./dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "release": "tsc --declaration && export $(grep -v '^#' .env | xargs) && pnpm publish --no-git-checks"
   },
   "bugs": {
@@ -36,6 +38,7 @@
     "typescript": "^5.4.5"
   },
   "devDependencies": {
+    "jest-environment-jsdom": "^30.4.1",
     "typedoc": "^0.25.13"
   }
 }
