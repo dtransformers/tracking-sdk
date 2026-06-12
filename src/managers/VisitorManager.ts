@@ -1,4 +1,5 @@
 import { SDKConfig } from "../types/config";
+import { Logger } from "../utils/logger";
 import { NetworkClient } from "../core/Network";
 import { StorageService } from "../core/Storage";
 import { VisitorResponse, CreateVisitorRequest } from "../types/visitor";
@@ -20,14 +21,8 @@ export class VisitorManager {
     this.network.setUnauthorizedHandler(() => this.ensureSession(true));
   }
 
-  private log(message: string, ...args: any[]): void {
-    if (this.config.debug) {
-      console.log(`[Tracking SDK] [VisitorManager] ${message}`, ...args);
-    }
-  }
-
   async createVisitor(): Promise<VisitorResponse> {
-    this.log("Collecting device info and fingerprint...");
+    Logger.log("VisitorManager", "Collecting device info and fingerprint...");
     const deviceInfo = collectDeviceInfo();
     const fingerprintHash = await generateFingerprintHash(deviceInfo);
 
@@ -84,14 +79,14 @@ export class VisitorManager {
       campaign_term: attribution.campaign_term,
     };
 
-    this.log("Sending create visitor request", payload);
+    Logger.log("VisitorManager", "Sending create visitor request", payload);
     const response = await this.network.request<VisitorResponse>(
       "POST",
       "/api/v1/visitors/", // Trailing slash is required by Postman
       payload
     );
 
-    this.log("Visitor session created/verified", response);
+    Logger.log("VisitorManager", "Visitor session created/verified", response);
     this.currentVisitor = response;
     return response;
   }
@@ -100,12 +95,12 @@ export class VisitorManager {
     const sessionId = this.storage.getCookie("session_id");
     const visitorUuid = this.storage.getCookie("visitor_uuid");
 
-    this.log(
+    Logger.log("VisitorManager", 
       `ensureSession: session_id=${sessionId}, visitor_uuid=${visitorUuid}, force=${force}`
     );
 
     if (force || !sessionId) {
-      this.log("Session not found or force refresh requested. Creating session...");
+      Logger.log("VisitorManager", "Session not found or force refresh requested. Creating session...");
       await this.createVisitor();
     }
   }
@@ -115,7 +110,7 @@ export class VisitorManager {
   }
 
   async ping(message: string = "pong"): Promise<{ message: string }> {
-    this.log("Sending ping request...", { message });
+    Logger.log("VisitorManager", "Sending ping request...", { message });
     await this.ensureSession();
     
     const response = await this.network.request<{ message: string }>(
@@ -124,19 +119,17 @@ export class VisitorManager {
       { message }
     );
     
-    this.log("Ping response received", response);
+    Logger.log("VisitorManager", "Ping response received", response);
     return response;
   }
 
   startPeriodicPing(intervalMs: number = 30000): void {
     this.stopPeriodicPing();
-    this.log(`Starting periodic ping every ${intervalMs}ms`);
+    Logger.log("VisitorManager", `Starting periodic ping every ${intervalMs}ms`);
     
     this.pingIntervalId = setInterval(() => {
       this.ping().catch((err) => {
-        if (this.config.debug) {
-          console.error(`[Tracking SDK] [VisitorManager] Periodic ping failed:`, err);
-        }
+        Logger.error("VisitorManager", `Periodic ping failed:`, err);
       });
     }, intervalMs);
   }
@@ -145,7 +138,7 @@ export class VisitorManager {
     if (this.pingIntervalId !== undefined) {
       clearInterval(this.pingIntervalId);
       this.pingIntervalId = undefined;
-      this.log("Stopped periodic ping");
+      Logger.log("VisitorManager", "Stopped periodic ping");
     }
   }
 }

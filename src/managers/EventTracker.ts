@@ -1,4 +1,5 @@
 import { SDKConfig } from "../types/config";
+import { Logger } from "../utils/logger";
 import { NetworkClient } from "../core/Network";
 import { VisitorManager } from "./VisitorManager";
 import { CreatePageViewRequest, CreateCustomEventRequest } from "../types/events";
@@ -18,20 +19,8 @@ export class EventTracker {
     private readonly config: SDKConfig
   ) {}
 
-  private log(message: string, ...args: any[]): void {
-    if (this.config.debug) {
-      console.log(`[Tracking SDK] [EventTracker] ${message}`, ...args);
-    }
-  }
-
-  private logError(message: string, ...args: any[]): void {
-    if (this.config.debug) {
-      console.error(`[Tracking SDK] [EventTracker] ${message}`, ...args);
-    }
-  }
-
   async trackPageView(data?: Partial<CreatePageViewRequest>): Promise<void> {
-    this.log("Tracking page view...");
+    Logger.log("EventTracker", "Tracking page view...");
     await this.visitorManager.ensureSession();
 
     const payload: CreatePageViewRequest = {
@@ -42,11 +31,11 @@ export class EventTracker {
     };
 
     await this.network.request<void>("POST", "/api/v1/events/pageviews", payload);
-    this.log("Page view tracked successfully", payload);
+    Logger.log("EventTracker", "Page view tracked successfully", payload);
   }
 
   async trackCustomEvent(data: CreateCustomEventRequest): Promise<void> {
-    this.log(`Tracking custom event: ${data.name}...`);
+    Logger.log("EventTracker", `Tracking custom event: ${data.name}...`);
     await this.visitorManager.ensureSession();
 
     // Auto-populate sequence number if not set
@@ -67,18 +56,18 @@ export class EventTracker {
     };
 
     await this.network.request<void>("POST", "/api/v1/events/custom", payload);
-    this.log("Custom event tracked successfully", payload);
+    Logger.log("EventTracker", "Custom event tracked successfully", payload);
   }
 
   enableAutoTrack(): void {
     if (this.isAutoTracking) return;
     this.isAutoTracking = true;
 
-    this.log("Enabling auto tracking...");
+    Logger.log("EventTracker", "Enabling auto tracking...");
 
     // Send the initial page view tracking
     this.trackPageView().catch((err) => {
-      this.logError("Failed to track initial page view in autoTrack", err);
+      Logger.error("EventTracker", "Failed to track initial page view in autoTrack", err);
     });
 
     if (globalThis.window === undefined || globalThis.history === undefined) return;
@@ -112,7 +101,7 @@ export class EventTracker {
     if (!this.isAutoTracking) return;
     this.isAutoTracking = false;
 
-    this.log("Disabling auto tracking...");
+    Logger.log("EventTracker", "Disabling auto tracking...");
 
     if (globalThis.window === undefined || globalThis.history === undefined) return;
 
@@ -134,10 +123,10 @@ export class EventTracker {
     if (globalThis.window === undefined) return;
     const currentUrl = globalThis.window.location.href;
     if (currentUrl !== this.lastUrl) {
-      this.log(`SPA route changed from ${this.lastUrl} to ${currentUrl}`);
+      Logger.log("EventTracker", `SPA route changed from ${this.lastUrl} to ${currentUrl}`);
       this.lastUrl = currentUrl;
       this.trackPageView().catch((err) => {
-        this.logError("Failed to track SPA route change", err);
+        Logger.error("EventTracker", "Failed to track SPA route change", err);
       });
     }
   }

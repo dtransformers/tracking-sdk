@@ -1,4 +1,5 @@
 import { SDKConfig } from "../types/config";
+import { Logger } from "../utils/logger";
 import { hmacSHA256, generateNonce } from "../utils/crypto";
 
 export class SDKError extends Error {
@@ -19,18 +20,6 @@ export class NetworkClient {
     this.unauthorizedHandler = handler;
   }
 
-  private log(message: string, ...args: any[]): void {
-    if (this.config.debug) {
-      console.log(`[Tracking SDK] [Network] ${message}`, ...args);
-    }
-  }
-
-  private logError(message: string, ...args: any[]): void {
-    if (this.config.debug) {
-      console.error(`[Tracking SDK] [Network] ${message}`, ...args);
-    }
-  }
-
   async request<T>(
     method: string,
     path: string,
@@ -48,7 +37,7 @@ export class NetworkClient {
         if (!isRetryable || attempt > maxRetries) {
           throw error;
         }
-        this.logWarning(`Request to ${path} failed. Retrying... (${attempt}/${maxRetries})`);
+        Logger.warn("Network", `Request to ${path} failed. Retrying... (${attempt}/${maxRetries})`);
         await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt - 1)));
       }
     }
@@ -92,7 +81,7 @@ export class NetworkClient {
     const queryPart = queryString ? `?${queryString}` : "";
     const fullUrl = `${serverUrl}${normalizedPath}${queryPart}`;
 
-    this.log(`Requesting ${uppercaseMethod} ${fullUrl}`, {
+    Logger.log("Network", `Requesting ${uppercaseMethod} ${fullUrl}`, {
       timestamp,
       nonce,
       hasBody: !!bodyStr,
@@ -137,12 +126,12 @@ export class NetworkClient {
       const response = await fetch(fullUrl, fetchOptions);
 
       if (response.status === 401) {
-        this.logWarning(`Received 401 Unauthorized for ${normalizedPath}`);
+        Logger.warn("Network", `Received 401 Unauthorized for ${normalizedPath}`);
         if (this.unauthorizedHandler && !isRetry) {
-          this.log("Attempting session recovery...");
+          Logger.log("Network", "Attempting session recovery...");
           try {
             await this.unauthorizedHandler();
-            this.log("Session recovered successfully. Retrying original request...");
+            Logger.log("Network", "Session recovered successfully. Retrying original request...");
             return await this.requestInternal<T>(
               method,
               path,
@@ -151,7 +140,7 @@ export class NetworkClient {
               true
             );
           } catch (recoveryErr) {
-            this.logError("Session recovery failed", recoveryErr);
+            Logger.error("Network", "Session recovery failed", recoveryErr);
             throw recoveryErr;
           }
         }
@@ -163,7 +152,7 @@ export class NetworkClient {
 
       if (!response.ok) {
         const errorText = await response.text();
-        this.logError(`Request failed with status ${response.status}: ${errorText}`);
+        Logger.error("Network", `Request failed with status ${response.status}: ${errorText}`);
         throw new SDKError(
           response.status,
           `Request failed with status ${response.status}: ${errorText}`
@@ -171,7 +160,7 @@ export class NetworkClient {
       }
 
       const responseText = await response.text();
-      this.log(`Response received for ${normalizedPath} (${response.status})`);
+      Logger.log("Network", `Response received for ${normalizedPath} (${response.status})`);
 
       if (!responseText) {
         return {} as T;
@@ -182,14 +171,9 @@ export class NetworkClient {
       if (error instanceof SDKError) {
         throw error;
       }
-      this.logError(`Network error for ${normalizedPath}`, error);
+      Logger.error("Network", `Network error for ${normalizedPath}`, error);
       throw new SDKError(0, error instanceof Error ? error.message : String(error));
     }
   }
 
-  private logWarning(message: string, ...args: any[]): void {
-    if (this.config.debug) {
-      console.warn(`[Tracking SDK] [Network] ${message}`, ...args);
-    }
-  }
 }

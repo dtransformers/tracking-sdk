@@ -4,6 +4,7 @@ import type {
   CreateCustomEventRequest,
 } from "./types/events";
 
+import { Logger } from "./utils/logger";
 import { StorageService } from "./core/Storage";
 import { NetworkClient } from "./core/Network";
 import { VisitorManager } from "./managers/VisitorManager";
@@ -14,6 +15,7 @@ export class TrackingSDK {
   private static _instance: TrackingSDK | null = null;
 
   readonly consent: ConsentManager;
+  readonly logger = Logger;
 
   private constructor(
     private readonly eventTracker: EventTracker,
@@ -28,18 +30,14 @@ export class TrackingSDK {
    * If already initialized, returns the existing instance.
    */
   static async init(config: SDKConfig): Promise<TrackingSDK> {
+    Logger.init(config.debug);
+
     if (TrackingSDK._instance) {
-      if (config.debug) {
-        console.log(
-          "[Tracking SDK] Already initialized, returning existing instance.",
-        );
-      }
+      Logger.log("Core", "Already initialized, returning existing instance.");
       return TrackingSDK._instance;
     }
 
-    if (config.debug) {
-      console.log("[Tracking SDK] Initializing tracking SDK...", config);
-    }
+    Logger.log("Core", "Initializing tracking SDK...", config);
 
     const storage = new StorageService();
     const network = new NetworkClient(config);
