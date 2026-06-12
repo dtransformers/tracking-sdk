@@ -13,7 +13,7 @@ export type UnauthorizedHandler = () => Promise<void>;
 export class NetworkClient {
   private unauthorizedHandler: UnauthorizedHandler | null = null;
 
-  constructor(private readonly config: SDKConfig) {}
+  constructor(private readonly config: SDKConfig) { }
 
   setUnauthorizedHandler(handler: UnauthorizedHandler): void {
     this.unauthorizedHandler = handler;
@@ -35,9 +35,24 @@ export class NetworkClient {
     method: string,
     path: string,
     body?: unknown,
-    queryString?: string
+    queryString?: string,
+    maxRetries: number = 3
   ): Promise<T> {
-    return this.requestInternal<T>(method, path, body, queryString, false);
+    let attempt = 0;
+    while (attempt <= maxRetries) {
+      try {
+        return await this.requestInternal<T>(method, path, body, queryString, false);
+      } catch (error) {
+        attempt++;
+        const isRetryable = error instanceof SDKError && (error.status === 0 || error.status >= 500);
+        if (!isRetryable || attempt > maxRetries) {
+          throw error;
+        }
+        this.logWarning(`Request to ${path} failed. Retrying... (${attempt}/${maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt - 1)));
+      }
+    }
+    throw new Error("Max retries exceeded");
   }
 
   private async prepareRequest(
@@ -47,14 +62,12 @@ export class NetworkClient {
     queryString: string | undefined
   ): Promise<{ fullUrl: string; fetchOptions: RequestInit; normalizedPath: string }> {
     const uppercaseMethod = method.toUpperCase();
-    
-    // Normalize path to start with /
+
     let normalizedPath = path;
     if (!normalizedPath.startsWith("/")) {
       normalizedPath = `/${normalizedPath}`;
     }
 
-    // Build canonical request string
     const timestamp = Math.floor(Date.now() / 1000).toString();
     const nonce = generateNonce();
     const bodyStr = body ? JSON.stringify(body) : "";
@@ -72,14 +85,12 @@ export class NetworkClient {
     const canonicalRequest = canonicalParts.join("\n");
     const signature = await hmacSHA256(canonicalRequest, this.config.secretKey);
 
-    // Build URL
     let serverUrl = this.config.serverUrl;
     if (serverUrl.endsWith("/")) {
       serverUrl = serverUrl.slice(0, -1);
     }
-    const fullUrl = `${serverUrl}${normalizedPath}${
-      queryString ? `?${queryString}` : ""
-    }`;
+    const fullUrl = `${serverUrl}${normalizedPath}${queryString ? `?${queryString}` : ""
+      }`;
 
     this.log(`Requesting ${uppercaseMethod} ${fullUrl}`, {
       timestamp,
@@ -98,7 +109,7 @@ export class NetworkClient {
     const fetchOptions: RequestInit = {
       method: uppercaseMethod,
       headers,
-      credentials: "include", // Ensure cookies are sent and received
+      credentials: "include",
     };
 
     if (uppercaseMethod !== "GET" && uppercaseMethod !== "HEAD") {
@@ -161,7 +172,7 @@ export class NetworkClient {
 
       const responseText = await response.text();
       this.log(`Response received for ${normalizedPath} (${response.status})`);
-      
+
       if (!responseText) {
         return {} as T;
       }
