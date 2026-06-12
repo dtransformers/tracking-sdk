@@ -14,7 +14,8 @@ export class TrackingSDK {
 
   private constructor(
     private readonly eventTracker: EventTracker,
-    consentManager: ConsentManager
+    consentManager: ConsentManager,
+    private readonly visitorManager: VisitorManager
   ) {
     this.consent = consentManager;
   }
@@ -49,7 +50,7 @@ export class TrackingSDK {
       eventTracker.enableAutoTrack();
     }
 
-    const instance = new TrackingSDK(eventTracker, consentManager);
+    const instance = new TrackingSDK(eventTracker, consentManager, visitorManager);
     TrackingSDK._instance = instance;
     return instance;
   }
@@ -59,6 +60,13 @@ export class TrackingSDK {
    */
   async track(event: CreateCustomEventRequest): Promise<void> {
     await this.eventTracker.trackCustomEvent(event);
+  }
+
+  /**
+   * Pings the tracking server to verify connection.
+   */
+  async ping(message?: string): Promise<{ message: string }> {
+    return this.visitorManager.ping(message);
   }
 
   /**

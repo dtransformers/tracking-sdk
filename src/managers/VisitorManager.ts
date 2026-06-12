@@ -112,4 +112,18 @@ export class VisitorManager {
   getCurrentVisitor(): VisitorNullable {
     return this.currentVisitor;
   }
+
+  async ping(message: string = "pong"): Promise<{ message: string }> {
+    this.log("Sending ping request...", { message });
+    await this.ensureSession();
+
+    const response = await this.network.request<{ message: string }>(
+      "POST",
+      "/api/v1/visitors/ping",
+      { message }
+    );
+
+    this.log("Ping response received", response);
+    return response;
+  }
 }
