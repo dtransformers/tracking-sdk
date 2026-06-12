@@ -30,7 +30,8 @@ export class NetworkClient {
   }
 
   /**
-   * Contract:
+   * @function request
+   * @description Contract:
    * Makes an authenticated HTTP request to the tracking server, with built-in retry logic
    * for transient network failures or 5xx server errors. The method automatically signs
    * the payload, attaches proper headers, handles JSON serialization/deserialization, and
