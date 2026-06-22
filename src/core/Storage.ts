@@ -1,5 +1,7 @@
+import { STORAGE_KEYS } from "../constants";
+
 export class StorageService {
-  private readonly prefix = "__tk_";
+  private readonly prefix = STORAGE_KEYS.PREFIX;
 
   /**
    * @function getFullKey

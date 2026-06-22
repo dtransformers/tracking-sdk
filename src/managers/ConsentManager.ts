@@ -1,6 +1,7 @@
 import { ConsentType, ConsentStatus, UpdateConsentRequest } from "../types/consent";
 import { NetworkClient } from "../core/Network";
 import { StorageService } from "../core/Storage";
+import { STORAGE_KEYS } from "../constants";
 
 export class ConsentManager {
   constructor(
@@ -18,7 +19,7 @@ export class ConsentManager {
    * @returns {string} The fully formed storage key.
    */
   private getStorageKey(type: ConsentType): string {
-    return `consent_${type}`;
+    return `${STORAGE_KEYS.CONSENT_PREFIX}${type}`;
   }
 
   /**
