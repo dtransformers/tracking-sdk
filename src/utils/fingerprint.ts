@@ -194,14 +194,18 @@ export async function generateFingerprintHash(
 ): Promise<string> {
   try {
     if (typeof globalThis.window !== "undefined") {
+      console.log(`Generating Fingerprint through fingreprintjs:`)
       const fp = await getFingerprintAgent();
       const result = await fp.get();
       if (result && result.visitorId) {
+        console.log(`Fingerprint generated successfully: ${result.visitorId}`)
         return result.visitorId;
       } else {
+        console.log(`Fingerprint not generated successfully`)
         throw new Error("Failed to generate fingerprint");
       }
     } else {
+      console.log(`Failed to generate fingerprint`)
       throw new Error("Failed to generate fingerprint");
     }
   } catch (error) {
