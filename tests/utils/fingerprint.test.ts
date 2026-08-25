@@ -4,12 +4,23 @@ import {
   detectDeviceType,
   collectDeviceInfo,
   generateFingerprintHash,
+  resetFingerprintAgent,
 } from "../../src/utils/fingerprint";
 import { sha256 } from "../../src/utils/crypto";
+import FingerprintJS from "@fingerprintjs/fingerprintjs";
 
 // Mock crypto module since fingerprint relies on it
 jest.mock("../../src/utils/crypto", () => ({
   sha256: jest.fn().mockResolvedValue("mocked-hash-value"),
+}));
+
+// Mock @fingerprintjs/fingerprintjs
+jest.mock("@fingerprintjs/fingerprintjs", () => ({
+  __esModule: true,
+  default: {
+    load: jest.fn(),
+  },
+  load: jest.fn(),
 }));
 
 describe("Fingerprint Utils", () => {
@@ -100,7 +111,30 @@ describe("Fingerprint Utils", () => {
   });
 
   describe("generateFingerprintHash", () => {
-    it("should concatenate device string and call sha256", async () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+      resetFingerprintAgent();
+    });
+
+    it("should return visitorId from FingerprintJS when available", async () => {
+      const mockGet = jest.fn().mockResolvedValue({ visitorId: "fpjs-unique-visitor-id" });
+      (FingerprintJS.load as jest.Mock).mockResolvedValue({ get: mockGet });
+
+      const result = await generateFingerprintHash();
+
+      expect(FingerprintJS.load).toHaveBeenCalledTimes(1);
+      expect(mockGet).toHaveBeenCalled();
+      expect(result).toBe("fpjs-unique-visitor-id");
+
+      // Verify agent promise is cached on subsequent call
+      const result2 = await generateFingerprintHash();
+      expect(FingerprintJS.load).toHaveBeenCalledTimes(1);
+      expect(result2).toBe("fpjs-unique-visitor-id");
+    });
+
+    it("should fallback to sha256 hash when FingerprintJS load throws an error", async () => {
+      (FingerprintJS.load as jest.Mock).mockRejectedValue(new Error("FPJS error"));
+
       const mockInfo = {
         userAgent: "fake-ua",
         language: "en-US",
@@ -117,6 +151,68 @@ describe("Fingerprint Utils", () => {
       const result = await generateFingerprintHash(mockInfo);
 
       expect(sha256).toHaveBeenCalledWith("fake-uaen-USUTC1024768MacIntel");
+      expect(result).toBe("mocked-hash-value");
+    });
+
+    it("should fallback to sha256 hash when fp.get() throws an error", async () => {
+      const mockGet = jest.fn().mockRejectedValue(new Error("get failed"));
+      (FingerprintJS.load as jest.Mock).mockResolvedValue({ get: mockGet });
+
+      const mockInfo = {
+        userAgent: "fake-ua",
+        language: "en-US",
+        timezone: "UTC",
+        screen_width: 1024,
+        screen_height: 768,
+        platform: "MacIntel",
+        browser: "Chrome",
+        browser_version: "100",
+        os: "macOS",
+        device_type: "desktop" as const,
+      };
+
+      const result = await generateFingerprintHash(mockInfo);
+
+      expect(sha256).toHaveBeenCalledWith("fake-uaen-USUTC1024768MacIntel");
+      expect(result).toBe("mocked-hash-value");
+    });
+
+    it("should fallback when window is undefined", async () => {
+      const originalWindow = globalThis.window;
+      delete (globalThis as any).window;
+
+      try {
+        const mockInfo = {
+          userAgent: "node-ua",
+          language: "en",
+          timezone: "UTC",
+          screen_width: 0,
+          screen_height: 0,
+          platform: "linux",
+          browser: "Unknown",
+          browser_version: "Unknown",
+          os: "Linux",
+          device_type: "desktop" as const,
+        };
+
+        const result = await generateFingerprintHash(mockInfo);
+        expect(sha256).toHaveBeenCalledWith("node-uaenUTC00linux");
+        expect(result).toBe("mocked-hash-value");
+      } finally {
+        globalThis.window = originalWindow;
+      }
+    });
+
+    it("should automatically collect device info if info argument is omitted on fallback", async () => {
+      (FingerprintJS.load as jest.Mock).mockRejectedValue(new Error("FPJS error"));
+
+      jest.spyOn(globalThis.navigator, "userAgent", "get").mockReturnValue("fallback-ua");
+      jest.spyOn(globalThis.navigator as any, "platform", "get").mockReturnValue("MacIntel");
+      jest.spyOn(globalThis.navigator, "language", "get").mockReturnValue("en");
+      jest.spyOn(globalThis.window, "screen", "get").mockReturnValue({ width: 800, height: 600 } as any);
+
+      const result = await generateFingerprintHash();
+      expect(sha256).toHaveBeenCalled();
       expect(result).toBe("mocked-hash-value");
     });
   });

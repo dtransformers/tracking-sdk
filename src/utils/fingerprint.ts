@@ -1,4 +1,28 @@
+import FingerprintJS, { Agent } from "@fingerprintjs/fingerprintjs";
 import { sha256 } from "./crypto";
+
+let fpPromise: Promise<Agent> | null = null;
+
+/**
+ * Returns a cached Promise that resolves to the FingerprintJS Agent instance.
+ * Re-initializes if the previous promise rejected.
+ */
+export function getFingerprintAgent(): Promise<Agent> {
+  if (!fpPromise) {
+    fpPromise = FingerprintJS.load().catch((err) => {
+      fpPromise = null;
+      throw err;
+    });
+  }
+  return fpPromise;
+}
+
+/**
+ * Resets the cached FingerprintJS agent promise (primarily for testing or reloading).
+ */
+export function resetFingerprintAgent(): void {
+  fpPromise = null;
+}
 
 export interface DeviceInfo {
   browser: string;
@@ -55,9 +79,9 @@ const BROWSER_RULES: BrowserRule[] = [
 /**
  * Contract:
  * Parses a User-Agent string to identify the browser name and its specific version.
- * Evaluates the UA string against a series of regular expression rules in a predefined order 
+ * Evaluates the UA string against a series of regular expression rules in a predefined order
  * (Opera, Edge, Chrome, Firefox, Safari, IE). Returns "Unknown" if no rules match.
- * 
+ *
  * @param {string} ua - The raw User-Agent string from the browser.
  * @returns {{ name: string; version: string }} An object containing the resolved browser name and version.
  */
@@ -82,7 +106,7 @@ export function detectBrowser(ua: string): { name: string; version: string } {
  * Contract:
  * Evaluates the User-Agent string to determine the underlying operating system.
  * Supports detection for Windows, Android, iOS, macOS, and Linux.
- * 
+ *
  * @param {string} ua - The raw User-Agent string.
  * @returns {string} The identified OS name, or "Unknown" if unidentifiable.
  */
@@ -98,25 +122,30 @@ export function detectOS(ua: string): string {
 /**
  * Contract:
  * Uses heuristic matching on the User-Agent string to categorize the device's form factor.
- * Differentiates between "tablet" (e.g., iPads, non-mobile Androids), "mobile" (e.g., iPhones, mobile browsers), 
+ * Differentiates between "tablet" (e.g., iPads, non-mobile Androids), "mobile" (e.g., iPhones, mobile browsers),
  * and defaults to "desktop" for everything else.
- * 
+ *
  * @param {string} ua - The raw User-Agent string.
  * @returns {"mobile" | "tablet" | "desktop"} The classified device category.
  */
 export function detectDeviceType(ua: string): "mobile" | "tablet" | "desktop" {
   if (/ipad|android(?!.*mobi)/i.test(ua)) return "tablet";
-  if (/mobi|iphone|ipod|blackberry|opera mini|opera mobi|iemobile|fennec/i.test(ua)) return "mobile";
+  if (
+    /mobi|iphone|ipod|blackberry|opera mini|opera mobi|iemobile|fennec/i.test(
+      ua,
+    )
+  )
+    return "mobile";
   return "desktop";
 }
 
 /**
  * Contract:
- * Aggregates various browser properties and hardware capabilities to form a comprehensive 
- * device profile. It safely reads from `globalThis.navigator` and `globalThis.window` to 
+ * Aggregates various browser properties and hardware capabilities to form a comprehensive
+ * device profile. It safely reads from `globalThis.navigator` and `globalThis.window` to
  * ensure compatibility with SSR environments. Captures browser, OS, device type, screen dimensions,
  * language, and the user's local timezone.
- * 
+ *
  * @returns {DeviceInfo} A structured object detailing the user's device and browser environment.
  */
 export function collectDeviceInfo(): DeviceInfo {
@@ -153,14 +182,32 @@ export function collectDeviceInfo(): DeviceInfo {
 
 /**
  * Contract:
- * Generates a stable cryptographic hash (SHA-256) of the device's core hardware and browser 
- * characteristics. This fingerprint acts as a highly probable unique identifier for the device,
- * allowing tracking systems to correlate anonymous sessions without relying exclusively on cookies.
- * 
- * @param {DeviceInfo} info - The aggregated device profile data.
- * @returns {Promise<string>} A hexadecimal string representation of the SHA-256 fingerprint hash.
+ * Generates a stable unique identifier/fingerprint for the device using @fingerprintjs/fingerprintjs.
+ * If FingerprintJS fails or is running in a non-browser (SSR/Node) environment, it gracefully falls
+ * back to generating a cryptographic SHA-256 hash of the collected device characteristics.
+ *
+ * @param {DeviceInfo} [info] - Optional aggregated device profile data used as fallback.
+ * @returns {Promise<string>} A string representing the unique visitor fingerprint hash.
  */
-export async function generateFingerprintHash(info: DeviceInfo): Promise<string> {
-  const rawString = `${info.userAgent}${info.language}${info.timezone}${info.screen_width}${info.screen_height}${info.platform}`;
-  return sha256(rawString);
+export async function generateFingerprintHash(
+  info?: DeviceInfo,
+): Promise<string> {
+  try {
+    if (typeof globalThis.window !== "undefined") {
+      const fp = await getFingerprintAgent();
+      const result = await fp.get();
+      if (result && result.visitorId) {
+        return result.visitorId;
+      } else {
+        throw new Error("Failed to generate fingerprint");
+      }
+    } else {
+      throw new Error("Failed to generate fingerprint");
+    }
+  } catch (error) {
+    console.error("Failed to generate fingerprint", error);
+    const device = info || collectDeviceInfo();
+    const rawString = `${device.userAgent}${device.language}${device.timezone}${device.screen_width}${device.screen_height}${device.platform}`;
+    return sha256(rawString);
+  }
 }
