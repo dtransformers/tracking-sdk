@@ -181,3 +181,61 @@ export interface CreateCustomEventRequest {
   click_ids?: PlatformClickIds;
   target?: TargetProps;
 }
+
+/**
+ * Fields the SDK is allowed to override on a semantic commerce event.
+ * `name`, `type` and `category` are fixed by the event definition itself.
+ */
+export type CommerceEventOverrides = Partial<
+  Omit<CreateCustomEventRequest, "name" | "type" | "category">
+>;
+
+/** A single product, plus any extra target props the host wants attached. */
+export type ProductEventInput = CommerceItem & {
+  target?: TargetProps;
+};
+
+/** A product the visitor hovered over, with the dwell time in milliseconds. */
+export type HoverProductInput = ProductEventInput & {
+  duration_ms?: number;
+};
+
+/** A product whose details were opened, plus where the visitor opened it from. */
+export type ViewProductDetailsInput = ProductEventInput & {
+  component?: string;
+  href?: string;
+};
+
+/** An order. Pass `items` for a multi-product order, or the item fields for a single one. */
+export type OrderProductInput = ProductEventInput & {
+  items?: CommerceItem[];
+  transaction_id?: string;
+  value?: number;
+  shipping?: number;
+  shipping_tier?: string;
+  tax?: number;
+  payment_type?: string;
+};
+
+/**
+ * A visitor who lingered without ordering. The SDK infers nothing here:
+ * the host app decides what hesitation means and supplies `duration_ms` and `reason`.
+ */
+export type HesitateOrderingInput = ProductEventInput & {
+  duration_ms?: number;
+  reason?: string;
+};
+
+/** A list of products, such as a menu. */
+export interface ItemListEventInput {
+  item_list_id?: string;
+  item_list_name?: string;
+  items?: CommerceItem[];
+  target?: TargetProps;
+}
+
+/** A move within a gallery: which position was reached, and where it points. */
+export interface GalleryNavigationInput extends ItemListEventInput {
+  index?: number;
+  href?: string;
+}

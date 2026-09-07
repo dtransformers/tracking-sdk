@@ -86,7 +86,74 @@ await sdk.track({
 });
 ```
 
-### 3. Consent Management
+### 3. Commerce Event Tracking
+
+`sdk.commerce` provides typed helpers for the seven semantic commerce events. Each one
+maps to a fixed `name`/`type`/`category` triple and shapes your input into a consistent
+payload: the product always lands in `target.items[]` as a `CommerceItem`.
+
+| Method | `name` | `type` | `category` |
+| --- | --- | --- | --- |
+| `viewMenu()` | `VIEW_MENU` | `commerce` | `commerce.view_item_list` |
+| `navigateGalery()` | `NAVIGATE_GALERY` | `navigation` | `navigation.route_change` |
+| `viewProduct()` | `VIEW_PRODUCT` | `commerce` | `commerce.view_item` |
+| `hoverOnProduct()` | `HOVER_ON_PRODUCT` | `interaction` | `interaction.hover` |
+| `viewProductDetails()` | `VIEW_PRODUCT_DETAILS` | `commerce` | `commerce.select_item` |
+| `orderProduct()` | `ORDER_PRODUCT` | `commerce` | `commerce.purchase` |
+| `hesitateOrdering()` | `HESITATE_ORDERING` | `engagement` | `engagement.hesitation` |
+
+```typescript
+// A list of products
+await sdk.commerce.viewMenu({ item_list_id: "menu_lunch", item_list_name: "Lunch Menu" });
+
+// Moving through a gallery
+await sdk.commerce.navigateGalery({ item_list_name: "Galery", index: 3 });
+
+// A product scrolled into view
+await sdk.commerce.viewProduct({
+  item_id: "p_123",
+  item_name: "Tajine",
+  price: 89,
+  currency: "MAD",
+  item_list_name: "Galery",
+});
+// -> target: { items: [{ item_id: "p_123", ... }], value: 89, currency: "MAD" }
+
+// Dwell time you measured yourself
+await sdk.commerce.hoverOnProduct({ item_id: "p_123", duration_ms: 900 });
+
+// Detail view, and where it was opened from
+await sdk.commerce.viewProductDetails({ item_id: "p_123", component: "product_card" });
+
+// A completed order (pass `items` instead for a multi-product order)
+await sdk.commerce.orderProduct({
+  item_id: "p_123",
+  price: 89,
+  currency: "MAD",
+  transaction_id: "t_42",
+  value: 99,
+  shipping: 10,
+});
+
+// Hesitation is yours to define - the SDK records it, it never infers it
+await sdk.commerce.hesitateOrdering({
+  item_id: "p_123",
+  duration_ms: 12400,
+  reason: "abandoned_form",
+});
+```
+
+`target.value` is derived from `price x quantity` when you do not pass it explicitly, and
+every method takes an optional second argument to override event-level fields
+(`page_id`, `sequence`, `occurred_at`, `click_ids`):
+
+```typescript
+await sdk.commerce.viewProduct({ item_id: "p_123" }, { page_id: 7 });
+```
+
+> `NAVIGATE_GALERY` is spelled with a single "r" on purpose - it is the agreed wire name.
+
+### 4. Consent Management
 
 The SDK provides granular APIs to manage visitor consent for different data processing categories (`tracking`, `marketing`, `functional`).
 
@@ -101,7 +168,7 @@ await sdk.consent.deny("marketing");
 const status = await sdk.consent.getStatus("tracking"); // "granted" | "denied" | "pending"
 ```
 
-### 4. Session & Connection Management
+### 5. Session & Connection Management
 
 The SDK automatically establishes sessions and device fingerprints upon initialization. You can verify network health using the ping APIs.
 
@@ -115,7 +182,7 @@ sdk.startPeriodicPing();
 sdk.stopPeriodicPing();
 ```
 
-### 5. Internal Logger
+### 6. Internal Logger
 
 The SDK uses a centralized internal logger that can be utilized by developers when debugging is enabled.
 

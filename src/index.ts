@@ -10,19 +10,23 @@ import { NetworkClient } from "./core/Network";
 import { VisitorManager } from "./managers/VisitorManager";
 import { ConsentManager } from "./managers/ConsentManager";
 import { EventTracker } from "./managers/EventTracker";
+import { CommerceTracker } from "./managers/CommerceTracker";
 
 export class TrackingSDK {
   private static _instance: TrackingSDK | null = null;
 
   readonly consent: ConsentManager;
+  readonly commerce: CommerceTracker;
   readonly logger = Logger;
 
   private constructor(
     private readonly eventTracker: EventTracker,
     consentManager: ConsentManager,
     private readonly visitorManager: VisitorManager,
+    commerceTracker: CommerceTracker,
   ) {
     this.consent = consentManager;
+    this.commerce = commerceTracker;
   }
 
   /**
@@ -44,6 +48,7 @@ export class TrackingSDK {
     const visitorManager = new VisitorManager(network, storage, config);
     const consentManager = new ConsentManager(network, storage);
     const eventTracker = new EventTracker(network, visitorManager, config);
+    const commerceTracker = new CommerceTracker(eventTracker);
 
     await visitorManager.createVisitor();
 
@@ -59,6 +64,7 @@ export class TrackingSDK {
       eventTracker,
       consentManager,
       visitorManager,
+      commerceTracker,
     );
     TrackingSDK._instance = instance;
     return instance;
@@ -129,5 +135,16 @@ export type {
   PlatformClickIds,
   TargetProps,
   CommerceItem,
+  CommerceEventOverrides,
+  ProductEventInput,
+  HoverProductInput,
+  ViewProductDetailsInput,
+  OrderProductInput,
+  HesitateOrderingInput,
+  ItemListEventInput,
+  GalleryNavigationInput,
 } from "./types/events";
+export { CommerceTracker } from "./managers/CommerceTracker";
+export { COMMERCE_EVENTS } from "./constants";
+export type { CommerceEventName } from "./constants";
 export type { VisitorResponse, CreateVisitorRequest } from "./types/visitor";
