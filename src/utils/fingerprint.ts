@@ -197,7 +197,7 @@ export async function generateFingerprintHash(
       console.log(`Generating Fingerprint through fingreprintjs:`)
       const fp = await getFingerprintAgent();
       const result = await fp.get();
-      if (result && result.visitorId) {
+      if (result?.visitorId) {
         console.log(`Fingerprint generated successfully: ${result.visitorId}`)
         return result.visitorId;
       } else {

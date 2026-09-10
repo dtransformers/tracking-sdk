@@ -70,7 +70,7 @@ describe("ConsentManager", () => {
       // Verify network request
       expect(mockNetwork.request).toHaveBeenCalledWith(
         "POST",
-        "/api/v1/consents/",
+        "/events/api/v1/consents/",
         {
           consent_type: "tracking",
           status: "granted",
@@ -104,7 +104,7 @@ describe("ConsentManager", () => {
 
       expect(mockNetwork.request).toHaveBeenCalledWith(
         "POST",
-        "/api/v1/consents/",
+        "/events/api/v1/consents/",
         {
           consent_type: "functional",
           status: "denied",

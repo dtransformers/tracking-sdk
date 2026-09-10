@@ -80,7 +80,7 @@ describe("VisitorManager", () => {
 
       expect(mockNetwork.request).toHaveBeenCalledWith(
         "POST",
-        "/api/v1/visitors/",
+        "/events/api/v1/visitors/",
         expect.objectContaining({
           browser: "Chrome",
           fingerprint_hash: "fake-hash",
@@ -103,7 +103,7 @@ describe("VisitorManager", () => {
       
       expect(mockNetwork.request).toHaveBeenCalledWith(
         "POST",
-        "/api/v1/visitors/",
+        "/events/api/v1/visitors/",
         expect.objectContaining({
           entry_page: "/",
         })
@@ -122,7 +122,7 @@ describe("VisitorManager", () => {
 
       expect(mockNetwork.request).toHaveBeenCalledWith(
         "POST",
-        "/api/v1/visitors/ping",
+        "/events/api/v1/visitors/ping",
         { message: "hello" }
       );
       expect(res).toEqual({ message: "pong" });
@@ -136,7 +136,7 @@ describe("VisitorManager", () => {
 
       expect(mockNetwork.request).toHaveBeenCalledWith(
         "POST",
-        "/api/v1/visitors/ping",
+        "/events/api/v1/visitors/ping",
         { message: "ping" }
       );
     });

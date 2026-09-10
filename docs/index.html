@@ -1,131 +1,495 @@
-<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>@dtransformers/tracking-kit</title><meta name="description" content="Documentation for @dtransformers/tracking-kit"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script defer src="assets/main.js"></script><script async src="assets/icons.js" id="tsd-icons-script"></script><script async src="assets/search.js" id="tsd-search-script"></script><script async src="assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><use href="assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">@dtransformers/tracking-kit</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><use href="assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><h2>@dtransformers/tracking-kit</h2></div><div class="tsd-panel tsd-typography"><a id="md:tracking-sdk" class="tsd-anchor"></a><h1><a href="#md:tracking-sdk">Tracking SDK</a></h1><p>The Tracking SDK is a lightweight JavaScript package embedded into customer websites to collect visitor activity, manage visitor sessions, handle consent, and communicate securely with the Tracking Server through REST APIs.
-The SDK must support:</p>
-<ul>
-<li>Visitor identification</li>
-<li>Session management</li>
-<li>Page tracking</li>
-<li>User interaction tracking</li>
-<li>Custom event tracking</li>
-<li>Consent management</li>
-<li>Attribution tracking</li>
-<li>Secure API communication</li>
-</ul>
-<a id="md:sdk-initialization" class="tsd-anchor"></a><h2><a href="#md:sdk-initialization">SDK Initialization</a></h2><pre><code class="language-typescript"><span class="hl-0">import</span><span class="hl-1"> { </span><span class="hl-2">TrackingSDK</span><span class="hl-1"> } </span><span class="hl-0">from</span><span class="hl-1"> </span><span class="hl-3">&#39;@dtransformers/tracking-kit&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-2">TrackingSDK</span><span class="hl-1">.</span><span class="hl-4">init</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-2">publicKey:</span><span class="hl-1"> </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">secretKey</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">serverUrl</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">autoTrack</span><span class="hl-1">?: </span><span class="hl-2">boolean</span><span class="hl-1">;</span><br/><span class="hl-2">cookieDomain</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-2">debug</span><span class="hl-1">?: </span><span class="hl-2">boolean</span><span class="hl-1">;</span><br/><span class="hl-1">});</span>
+<!doctype html>
+<html class="default" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="IE=edge" />
+    <title>@dtransformers/tracking-kit</title>
+    <meta
+      name="description"
+      content="Documentation for @dtransformers/tracking-kit"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="assets/style.css" />
+    <link rel="stylesheet" href="assets/highlight.css" />
+    <script defer src="assets/main.js"></script>
+    <script async src="assets/icons.js" id="tsd-icons-script"></script>
+    <script async src="assets/search.js" id="tsd-search-script"></script>
+    <script async src="assets/navigation.js" id="tsd-nav-script"></script>
+  </head>
+  <body>
+    <script>
+      document.documentElement.dataset.theme =
+        localStorage.getItem("tsd-theme") || "os";
+      document.body.style.display = "none";
+      setTimeout(
+        () =>
+          app ? app.showPage() : document.body.style.removeProperty("display"),
+        500,
+      );
+    </script>
+    <header class="tsd-page-toolbar">
+      <div class="tsd-toolbar-contents container">
+        <div class="table-cell" id="tsd-search" data-base=".">
+          <div class="field">
+            <label
+              for="tsd-search-field"
+              class="tsd-widget tsd-toolbar-icon search no-caption"
+              ><svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <use href="assets/icons.svg#icon-search"></use></svg></label
+            ><input type="text" id="tsd-search-field" aria-label="Search" />
+          </div>
+          <div class="field"><div id="tsd-toolbar-links"></div></div>
+          <ul class="results">
+            <li class="state loading">Preparing search index...</li>
+            <li class="state failure">The search index is not available</li>
+          </ul>
+          <a href="index.html" class="title">@dtransformers/tracking-kit</a>
+        </div>
+        <div class="table-cell" id="tsd-widgets">
+          <a
+            href="#"
+            class="tsd-widget tsd-toolbar-icon menu no-caption"
+            data-toggle="menu"
+            aria-label="Menu"
+            ><svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <use href="assets/icons.svg#icon-menu"></use></svg
+          ></a>
+        </div>
+      </div>
+    </header>
+    <div class="container container-main">
+      <div class="col-content">
+        <div class="tsd-page-title"><h2>@dtransformers/tracking-kit</h2></div>
+        <div class="tsd-panel tsd-typography">
+          <a id="md:tracking-sdk" class="tsd-anchor"></a>
+          <h1><a href="#md:tracking-sdk">Tracking SDK</a></h1>
+          <p>
+            The Tracking SDK is a lightweight JavaScript package embedded into
+            customer websites to collect visitor activity, manage visitor
+            sessions, handle consent, and communicate securely with the Tracking
+            Server through REST APIs. The SDK must support:
+          </p>
+          <ul>
+            <li>Visitor identification</li>
+            <li>Session management</li>
+            <li>Page tracking</li>
+            <li>User interaction tracking</li>
+            <li>Custom event tracking</li>
+            <li>Consent management</li>
+            <li>Attribution tracking</li>
+            <li>Secure API communication</li>
+          </ul>
+          <a id="md:sdk-initialization" class="tsd-anchor"></a>
+          <h2><a href="#md:sdk-initialization">SDK Initialization</a></h2>
+          <pre><code class="language-typescript"><span class="hl-0">import</span><span class="hl-1"> { </span><span class="hl-2">TrackingSDK</span><span class="hl-1"> } </span><span class="hl-0">from</span><span class="hl-1"> </span><span class="hl-3">&#39;@dtransformers/tracking-kit&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-2">TrackingSDK</span><span class="hl-1">.</span><span class="hl-4">init</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-2">publicKey:</span><span class="hl-1"> </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">secretKey</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">serverUrl</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">autoTrack</span><span class="hl-1">?: </span><span class="hl-2">boolean</span><span class="hl-1">;</span><br/><span class="hl-2">cookieDomain</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-2">debug</span><span class="hl-1">?: </span><span class="hl-2">boolean</span><span class="hl-1">;</span><br/><span class="hl-1">});</span>
 </code><button>Copy</button></pre>
-<a id="md:sdk-initialization-configuration" class="tsd-anchor"></a><h2><a href="#md:sdk-initialization-configuration">SDK Initialization Configuration</a></h2><table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Required</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>publicKey</td>
-<td>Yes</td>
-<td>Public API key</td>
-</tr>
-<tr>
-<td>secretKey</td>
-<td>Yes</td>
-<td>Secret key used for request signing</td>
-</tr>
-<tr>
-<td>serverUrl</td>
-<td>Yes</td>
-<td>Tracking server base URL</td>
-</tr>
-<tr>
-<td>autoTrack</td>
-<td>No</td>
-<td>Automatically track page views and interactions</td>
-</tr>
-<tr>
-<td>cookieDomain</td>
-<td>No</td>
-<td>Cookie scope</td>
-</tr>
-<tr>
-<td>debug</td>
-<td>No</td>
-<td>Enable SDK logging</td>
-</tr>
-</tbody></table>
-<a id="md:authentication" class="tsd-anchor"></a><h2><a href="#md:authentication">Authentication</a></h2><p>Every request sent to the tracking server must contain:</p>
-<ul>
-<li>X-API-Key</li>
-<li>X-Signature</li>
-<li>X-Timestamp</li>
-<li>X-Nonce</li>
-</ul>
-<a id="md:signature-generation" class="tsd-anchor"></a><h2><a href="#md:signature-generation">Signature Generation</a></h2><ul>
-<li>METHOD</li>
-<li>PATH</li>
-<li>QUERY_STRING</li>
-<li>TIMESTAMP</li>
-<li>NONCE</li>
-<li>BODY</li>
-</ul>
-<p>signature = Hmac_Sha256(canonicalRequest, SECRET_KEY)</p>
-<a id="md:lifecycle" class="tsd-anchor"></a><h2><a href="#md:lifecycle">LifeCycle:</a></h2><a id="md:visitors" class="tsd-anchor"></a><h3><a href="#md:visitors">Visitors</a></h3><p>Automatic Visitor Creation
-During initialization the SDK must:</p>
-<ol>
-<li>Generate device fingerprint</li>
-<li>Collect browser metadata</li>
-<li>Detect OS</li>
-<li>Detect device type</li>
-<li>Detect language</li>
-<li>Detect timezone</li>
-<li>Detect attribution data</li>
-<li>Create visitor</li>
-</ol>
-<p>Create Visitor API:</p>
-<p>POST /api/v1/visitors</p>
-<p>Request:</p>
-<pre><code class="language-typescript"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-5">browser</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-5">browser_version</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">os</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-5">device_type</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">fingerprint_hash</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">screen_width</span><span class="hl-1">: </span><span class="hl-2">number</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-5">screen_height</span><span class="hl-1">: </span><span class="hl-2">number</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">language</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-5">timezone</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">entry_page</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">referrer_host</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-5">previous_site</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">acquisition_source</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">acquisition_medium</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">acquisition_campaign</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">campaign_id</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">campaign_content</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">campaign_term</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">}</span>
+          <a id="md:sdk-initialization-configuration" class="tsd-anchor"></a>
+          <h2>
+            <a href="#md:sdk-initialization-configuration"
+              >SDK Initialization Configuration</a
+            >
+          </h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Required</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>publicKey</td>
+                <td>Yes</td>
+                <td>Public API key</td>
+              </tr>
+              <tr>
+                <td>secretKey</td>
+                <td>Yes</td>
+                <td>Secret key used for request signing</td>
+              </tr>
+              <tr>
+                <td>serverUrl</td>
+                <td>Yes</td>
+                <td>Tracking server base URL</td>
+              </tr>
+              <tr>
+                <td>autoTrack</td>
+                <td>No</td>
+                <td>Automatically track page views and interactions</td>
+              </tr>
+              <tr>
+                <td>cookieDomain</td>
+                <td>No</td>
+                <td>Cookie scope</td>
+              </tr>
+              <tr>
+                <td>debug</td>
+                <td>No</td>
+                <td>Enable SDK logging</td>
+              </tr>
+            </tbody>
+          </table>
+          <a id="md:authentication" class="tsd-anchor"></a>
+          <h2><a href="#md:authentication">Authentication</a></h2>
+          <p>Every request sent to the tracking server must contain:</p>
+          <ul>
+            <li>X-API-Key</li>
+            <li>X-Signature</li>
+            <li>X-Timestamp</li>
+            <li>X-Nonce</li>
+          </ul>
+          <a id="md:signature-generation" class="tsd-anchor"></a>
+          <h2><a href="#md:signature-generation">Signature Generation</a></h2>
+          <ul>
+            <li>METHOD</li>
+            <li>PATH</li>
+            <li>QUERY_STRING</li>
+            <li>TIMESTAMP</li>
+            <li>NONCE</li>
+            <li>BODY</li>
+          </ul>
+          <p>signature = Hmac_Sha256(canonicalRequest, SECRET_KEY)</p>
+          <a id="md:lifecycle" class="tsd-anchor"></a>
+          <h2><a href="#md:lifecycle">LifeCycle:</a></h2>
+          <a id="md:visitors" class="tsd-anchor"></a>
+          <h3><a href="#md:visitors">Visitors</a></h3>
+          <p>Automatic Visitor Creation During initialization the SDK must:</p>
+          <ol>
+            <li>Generate device fingerprint</li>
+            <li>Collect browser metadata</li>
+            <li>Detect OS</li>
+            <li>Detect device type</li>
+            <li>Detect language</li>
+            <li>Detect timezone</li>
+            <li>Detect attribution data</li>
+            <li>Create visitor</li>
+          </ol>
+          <p>Create Visitor API:</p>
+          <p>POST /events/api/v1/visitors</p>
+          <p>Request:</p>
+          <pre><code class="language-typescript"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-5">browser</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-5">browser_version</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">os</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-5">device_type</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">fingerprint_hash</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">screen_width</span><span class="hl-1">: </span><span class="hl-2">number</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-5">screen_height</span><span class="hl-1">: </span><span class="hl-2">number</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">language</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-5">timezone</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">entry_page</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">referrer_host</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-5">previous_site</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">acquisition_source</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">acquisition_medium</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">acquisition_campaign</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">campaign_id</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">campaign_content</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">campaign_term</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">}</span>
 </code><button>Copy</button></pre>
-<a id="md:device-fingerprinting" class="tsd-anchor"></a><h3><a href="#md:device-fingerprinting">Device Fingerprinting</a></h3><p>The SDK must generate a stable fingerprint using:</p>
-<pre><code class="language-typescript"><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">fingerprintHash</span><span class="hl-1"> = </span><span class="hl-4">SHA256</span><span class="hl-1">(</span><br/><span class="hl-1">  </span><span class="hl-2">userAgent</span><span class="hl-1"> + </span><span class="hl-2">language</span><span class="hl-1"> + </span><span class="hl-2">timezone</span><span class="hl-1"> + </span><span class="hl-2">screenWidth</span><span class="hl-1"> + </span><span class="hl-2">screenHeight</span><span class="hl-1"> + </span><span class="hl-2">platform</span><span class="hl-1">,</span><br/><span class="hl-1">);</span>
+          <a id="md:device-fingerprinting" class="tsd-anchor"></a>
+          <h3><a href="#md:device-fingerprinting">Device Fingerprinting</a></h3>
+          <p>The SDK must generate a stable fingerprint using:</p>
+          <pre><code class="language-typescript"><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-7">fingerprintHash</span><span class="hl-1"> = </span><span class="hl-4">SHA256</span><span class="hl-1">(</span><br/><span class="hl-1">  </span><span class="hl-2">userAgent</span><span class="hl-1"> + </span><span class="hl-2">language</span><span class="hl-1"> + </span><span class="hl-2">timezone</span><span class="hl-1"> + </span><span class="hl-2">screenWidth</span><span class="hl-1"> + </span><span class="hl-2">screenHeight</span><span class="hl-1"> + </span><span class="hl-2">platform</span><span class="hl-1">,</span><br/><span class="hl-1">);</span>
 </code><button>Copy</button></pre>
-<a id="md:session-management" class="tsd-anchor"></a><h3><a href="#md:session-management">Session Management</a></h3><p>After visitor creation the server returns:</p>
-<pre><code class="language-http"><span class="hl-8">Set-Cookie</span><span class="hl-6">:</span><span class="hl-1"> </span><span class="hl-3">visitor_uuid=xxx; Path=/; Domain=yourdomain.com; SameSite=Lax; Secure;</span><br/><span class="hl-8">Set-Cookie</span><span class="hl-6">:</span><span class="hl-1"> </span><span class="hl-3">session_id=yyy; Path=/; Domain=yourdomain.com; SameSite=Lax; Secure;</span>
+          <a id="md:session-management" class="tsd-anchor"></a>
+          <h3><a href="#md:session-management">Session Management</a></h3>
+          <p>After visitor creation the server returns:</p>
+          <pre><code class="language-http"><span class="hl-8">Set-Cookie</span><span class="hl-6">:</span><span class="hl-1"> </span><span class="hl-3">visitor_uuid=xxx; Path=/; Domain=yourdomain.com; SameSite=Lax; Secure;</span><br/><span class="hl-8">Set-Cookie</span><span class="hl-6">:</span><span class="hl-1"> </span><span class="hl-3">session_id=yyy; Path=/; Domain=yourdomain.com; SameSite=Lax; Secure;</span>
 </code><button>Copy</button></pre>
-<p>The SDK must:</p>
-<ul>
-<li>Store cookies</li>
-<li>Attach cookies to every request</li>
-<li>Detect session expiration</li>
-<li>Create a new session when needed</li>
-</ul>
-<a id="md:attribution-tracking" class="tsd-anchor"></a><h3><a href="#md:attribution-tracking">Attribution Tracking</a></h3><p>The SDK must automatically capture attribution parameters from URL query strings.</p>
-<pre><code class="language-typescript"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-2">utm_source</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">utm_medium</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">utm_campaign</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">utm_term</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">utm_content</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">gclid</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">gbraid</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">wbraid</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">fbclid</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">fbc</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">fbp</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">ttclid</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">ttp</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">twclid</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">msclkid</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">li_fat_id</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">epik</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">dclid</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">ScCid</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">liveramp_ats_id</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">}</span>
+          <p>The SDK must:</p>
+          <ul>
+            <li>Store cookies</li>
+            <li>Attach cookies to every request</li>
+            <li>Detect session expiration</li>
+            <li>Create a new session when needed</li>
+          </ul>
+          <a id="md:attribution-tracking" class="tsd-anchor"></a>
+          <h3><a href="#md:attribution-tracking">Attribution Tracking</a></h3>
+          <p>
+            The SDK must automatically capture attribution parameters from URL
+            query strings.
+          </p>
+          <pre><code class="language-typescript"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-2">utm_source</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">utm_medium</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">utm_campaign</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">utm_term</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">utm_content</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">gclid</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">gbraid</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">wbraid</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">fbclid</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">fbc</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">fbp</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">ttclid</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-2">ttp</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">twclid</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">msclkid</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">li_fat_id</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">epik</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">dclid</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">ScCid</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-2">liveramp_ats_id</span><span class="hl-1">?: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">}</span>
 </code><button>Copy</button></pre>
-<p>The SDK should persist attribution data in:</p>
-<ul>
-<li>sessionStorage</li>
-<li>local storage</li>
-</ul>
-<a id="md:consent-management" class="tsd-anchor"></a><h3><a href="#md:consent-management">Consent Management</a></h3><p>The SDK must provide APIs for managing visitor consent.
-endpoint: POST /api/v1/consents
-payload:</p>
-<pre><code class="language-typescript"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-5">consent_type</span><span class="hl-1">: </span><span class="hl-3">&quot;tracking&quot;</span><span class="hl-1"> | </span><span class="hl-3">&quot;marketing&quot;</span><span class="hl-1"> | </span><span class="hl-3">&quot;functional&quot;</span><span class="hl-1"> | </span><span class="hl-3">&quot;none&quot;</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">status</span><span class="hl-1">: </span><span class="hl-3">&quot;granted&quot;</span><span class="hl-1"> | </span><span class="hl-3">&quot;denied&quot;</span><span class="hl-1"> | </span><span class="hl-3">&quot;pending&quot;</span><span class="hl-1">;</span><br/><span class="hl-1">}</span>
+          <p>The SDK should persist attribution data in:</p>
+          <ul>
+            <li>sessionStorage</li>
+            <li>local storage</li>
+          </ul>
+          <a id="md:consent-management" class="tsd-anchor"></a>
+          <h3><a href="#md:consent-management">Consent Management</a></h3>
+          <p>
+            The SDK must provide APIs for managing visitor consent. endpoint:
+            POST /events/api/v1/consents payload:
+          </p>
+          <pre><code class="language-typescript"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-5">consent_type</span><span class="hl-1">: </span><span class="hl-3">&quot;tracking&quot;</span><span class="hl-1"> | </span><span class="hl-3">&quot;marketing&quot;</span><span class="hl-1"> | </span><span class="hl-3">&quot;functional&quot;</span><span class="hl-1"> | </span><span class="hl-3">&quot;none&quot;</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">status</span><span class="hl-1">: </span><span class="hl-3">&quot;granted&quot;</span><span class="hl-1"> | </span><span class="hl-3">&quot;denied&quot;</span><span class="hl-1"> | </span><span class="hl-3">&quot;pending&quot;</span><span class="hl-1">;</span><br/><span class="hl-1">}</span>
 </code><button>Copy</button></pre>
-<p>sdk.consent.grant(type);</p>
-<p>sdk.consent.deny(type);</p>
-<p>sdk.consent.getStatus(type);</p>
-<a id="md:page-view-tracking" class="tsd-anchor"></a><h2><a href="#md:page-view-tracking">Page View Tracking</a></h2><p>The SDK must automatically track:</p>
-<ul>
-<li>Initial page load</li>
-<li>SPA route changes</li>
-<li>Browser navigation</li>
-</ul>
-<p>Endpoint: POST /api/v1/events/pageviews
-payload:</p>
-<pre><code class="language-typescript"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-5">url</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-5">referrer</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-5">title</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">}</span>
+          <p>sdk.consent.grant(type);</p>
+          <p>sdk.consent.deny(type);</p>
+          <p>sdk.consent.getStatus(type);</p>
+          <a id="md:page-view-tracking" class="tsd-anchor"></a>
+          <h2><a href="#md:page-view-tracking">Page View Tracking</a></h2>
+          <p>The SDK must automatically track:</p>
+          <ul>
+            <li>Initial page load</li>
+            <li>SPA route changes</li>
+            <li>Browser navigation</li>
+          </ul>
+          <p>Endpoint: POST /events/api/v1/events/pageviews payload:</p>
+          <pre><code class="language-typescript"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-5">url</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-5">referrer</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-5">title</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">}</span>
 </code><button>Copy</button></pre>
-<a id="md:custom-event-tracking" class="tsd-anchor"></a><h2><a href="#md:custom-event-tracking">Custom Event Tracking</a></h2><p>endpoint: POST /api/v1/events/custom
-payload:</p>
-<pre><code><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-5">category</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-5">type</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-5">name</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">occurred_at</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">page_id</span><span class="hl-1">: </span><span class="hl-2">number</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">schema_version</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">sdk_name</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-5">sdk_version</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">sequence</span><span class="hl-1">: </span><span class="hl-2">number</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">click_ids</span><span class="hl-1">: </span><span class="hl-2">AttributionContext</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">target</span><span class="hl-1">: </span><span class="hl-2">EventTarget</span><span class="hl-1">;</span><br/><span class="hl-1">}</span>
+          <a id="md:custom-event-tracking" class="tsd-anchor"></a>
+          <h2><a href="#md:custom-event-tracking">Custom Event Tracking</a></h2>
+          <p>endpoint: POST /events/api/v1/events/custom payload:</p>
+          <pre><code><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-5">category</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-5">type</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-5">name</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">occurred_at</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">page_id</span><span class="hl-1">: </span><span class="hl-2">number</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">schema_version</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">sdk_name</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><span class="hl-1">  </span><span class="hl-5">sdk_version</span><span class="hl-1">: </span><span class="hl-2">string</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">sequence</span><span class="hl-1">: </span><span class="hl-2">number</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">click_ids</span><span class="hl-1">: </span><span class="hl-2">AttributionContext</span><span class="hl-1">;</span><br/><br/><span class="hl-1">  </span><span class="hl-5">target</span><span class="hl-1">: </span><span class="hl-2">EventTarget</span><span class="hl-1">;</span><br/><span class="hl-1">}</span>
 </code><button>Copy</button></pre>
-<p>sdk.track(event);</p>
-</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-index-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><use href="assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><h4 class="uppercase">Member Visibility</h4><form><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-private" name="private"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Private</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></form></div><div class="tsd-theme-toggle"><h4 class="uppercase">Theme</h4><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-index-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><use href="assets/icons.svg#icon-chevronDown"></use></svg>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#md:tracking-sdk"><span>Tracking SDK</span></a><ul><li><a href="#md:sdk-initialization"><span>SDK <wbr/>Initialization</span></a></li><li><a href="#md:sdk-initialization-configuration"><span>SDK <wbr/>Initialization <wbr/>Configuration</span></a></li><li><a href="#md:authentication"><span>Authentication</span></a></li><li><a href="#md:signature-generation"><span>Signature <wbr/>Generation</span></a></li><li><a href="#md:lifecycle"><span>Life<wbr/>Cycle:</span></a></li><li><ul><li><a href="#md:visitors"><span>Visitors</span></a></li><li><a href="#md:device-fingerprinting"><span>Device <wbr/>Fingerprinting</span></a></li><li><a href="#md:session-management"><span>Session <wbr/>Management</span></a></li><li><a href="#md:attribution-tracking"><span>Attribution <wbr/>Tracking</span></a></li><li><a href="#md:consent-management"><span>Consent <wbr/>Management</span></a></li></ul></li><li><a href="#md:page-view-tracking"><span>Page <wbr/>View <wbr/>Tracking</span></a></li><li><a href="#md:custom-event-tracking"><span>Custom <wbr/>Event <wbr/>Tracking</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="modules.html" class="current"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="assets/icons.svg#icon-1"></use></svg><span>@dtransformers/tracking-kit</span></a><ul class="tsd-small-nested-navigation" id="tsd-nav-container" data-base="."><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>
+          <p>sdk.track(event);</p>
+        </div>
+      </div>
+      <div class="col-sidebar">
+        <div class="page-menu">
+          <div class="tsd-navigation settings">
+            <details class="tsd-index-accordion">
+              <summary class="tsd-accordion-summary">
+                <h3>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <use href="assets/icons.svg#icon-chevronDown"></use></svg
+                  >Settings
+                </h3>
+              </summary>
+              <div class="tsd-accordion-details">
+                <div class="tsd-filter-visibility">
+                  <h4 class="uppercase">Member Visibility</h4>
+                  <form>
+                    <ul id="tsd-filter-options">
+                      <li class="tsd-filter-item">
+                        <label class="tsd-filter-input"
+                          ><input
+                            type="checkbox"
+                            id="tsd-filter-protected"
+                            name="protected"
+                          /><svg
+                            width="32"
+                            height="32"
+                            viewBox="0 0 32 32"
+                            aria-hidden="true"
+                          >
+                            <rect
+                              class="tsd-checkbox-background"
+                              width="30"
+                              height="30"
+                              x="1"
+                              y="1"
+                              rx="6"
+                              fill="none"
+                            ></rect>
+                            <path
+                              class="tsd-checkbox-checkmark"
+                              d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25"
+                              stroke="none"
+                              stroke-width="3.5"
+                              stroke-linejoin="round"
+                              fill="none"
+                            ></path></svg
+                          ><span>Protected</span></label
+                        >
+                      </li>
+                      <li class="tsd-filter-item">
+                        <label class="tsd-filter-input"
+                          ><input
+                            type="checkbox"
+                            id="tsd-filter-private"
+                            name="private"
+                          /><svg
+                            width="32"
+                            height="32"
+                            viewBox="0 0 32 32"
+                            aria-hidden="true"
+                          >
+                            <rect
+                              class="tsd-checkbox-background"
+                              width="30"
+                              height="30"
+                              x="1"
+                              y="1"
+                              rx="6"
+                              fill="none"
+                            ></rect>
+                            <path
+                              class="tsd-checkbox-checkmark"
+                              d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25"
+                              stroke="none"
+                              stroke-width="3.5"
+                              stroke-linejoin="round"
+                              fill="none"
+                            ></path></svg
+                          ><span>Private</span></label
+                        >
+                      </li>
+                      <li class="tsd-filter-item">
+                        <label class="tsd-filter-input"
+                          ><input
+                            type="checkbox"
+                            id="tsd-filter-inherited"
+                            name="inherited"
+                            checked
+                          /><svg
+                            width="32"
+                            height="32"
+                            viewBox="0 0 32 32"
+                            aria-hidden="true"
+                          >
+                            <rect
+                              class="tsd-checkbox-background"
+                              width="30"
+                              height="30"
+                              x="1"
+                              y="1"
+                              rx="6"
+                              fill="none"
+                            ></rect>
+                            <path
+                              class="tsd-checkbox-checkmark"
+                              d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25"
+                              stroke="none"
+                              stroke-width="3.5"
+                              stroke-linejoin="round"
+                              fill="none"
+                            ></path></svg
+                          ><span>Inherited</span></label
+                        >
+                      </li>
+                      <li class="tsd-filter-item">
+                        <label class="tsd-filter-input"
+                          ><input
+                            type="checkbox"
+                            id="tsd-filter-external"
+                            name="external"
+                          /><svg
+                            width="32"
+                            height="32"
+                            viewBox="0 0 32 32"
+                            aria-hidden="true"
+                          >
+                            <rect
+                              class="tsd-checkbox-background"
+                              width="30"
+                              height="30"
+                              x="1"
+                              y="1"
+                              rx="6"
+                              fill="none"
+                            ></rect>
+                            <path
+                              class="tsd-checkbox-checkmark"
+                              d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25"
+                              stroke="none"
+                              stroke-width="3.5"
+                              stroke-linejoin="round"
+                              fill="none"
+                            ></path></svg
+                          ><span>External</span></label
+                        >
+                      </li>
+                    </ul>
+                  </form>
+                </div>
+                <div class="tsd-theme-toggle">
+                  <h4 class="uppercase">Theme</h4>
+                  <select id="tsd-theme">
+                    <option value="os">OS</option>
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                  </select>
+                </div>
+              </div>
+            </details>
+          </div>
+          <details open class="tsd-index-accordion tsd-page-navigation">
+            <summary class="tsd-accordion-summary">
+              <h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <use href="assets/icons.svg#icon-chevronDown"></use></svg
+                >On This Page
+              </h3>
+            </summary>
+            <div class="tsd-accordion-details">
+              <a href="#md:tracking-sdk"><span>Tracking SDK</span></a>
+              <ul>
+                <li>
+                  <a href="#md:sdk-initialization"
+                    ><span>SDK <wbr />Initialization</span></a
+                  >
+                </li>
+                <li>
+                  <a href="#md:sdk-initialization-configuration"
+                    ><span
+                      >SDK <wbr />Initialization <wbr />Configuration</span
+                    ></a
+                  >
+                </li>
+                <li>
+                  <a href="#md:authentication"><span>Authentication</span></a>
+                </li>
+                <li>
+                  <a href="#md:signature-generation"
+                    ><span>Signature <wbr />Generation</span></a
+                  >
+                </li>
+                <li>
+                  <a href="#md:lifecycle"
+                    ><span>Life<wbr />Cycle:</span></a
+                  >
+                </li>
+                <li>
+                  <ul>
+                    <li>
+                      <a href="#md:visitors"><span>Visitors</span></a>
+                    </li>
+                    <li>
+                      <a href="#md:device-fingerprinting"
+                        ><span>Device <wbr />Fingerprinting</span></a
+                      >
+                    </li>
+                    <li>
+                      <a href="#md:session-management"
+                        ><span>Session <wbr />Management</span></a
+                      >
+                    </li>
+                    <li>
+                      <a href="#md:attribution-tracking"
+                        ><span>Attribution <wbr />Tracking</span></a
+                      >
+                    </li>
+                    <li>
+                      <a href="#md:consent-management"
+                        ><span>Consent <wbr />Management</span></a
+                      >
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="#md:page-view-tracking"
+                    ><span>Page <wbr />View <wbr />Tracking</span></a
+                  >
+                </li>
+                <li>
+                  <a href="#md:custom-event-tracking"
+                    ><span>Custom <wbr />Event <wbr />Tracking</span></a
+                  >
+                </li>
+              </ul>
+            </div>
+          </details>
+        </div>
+        <div class="site-menu">
+          <nav class="tsd-navigation">
+            <a href="modules.html" class="current"
+              ><svg class="tsd-kind-icon" viewBox="0 0 24 24">
+                <use href="assets/icons.svg#icon-1"></use></svg
+              ><span>@dtransformers/tracking-kit</span></a
+            >
+            <ul
+              class="tsd-small-nested-navigation"
+              id="tsd-nav-container"
+              data-base="."
+            >
+              <li>Loading...</li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <p class="tsd-generator">
+        Generated using
+        <a href="https://typedoc.org/" target="_blank">TypeDoc</a>
+      </p>
+    </footer>
+    <div class="overlay"></div>
+  </body>
+</html>

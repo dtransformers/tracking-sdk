@@ -94,7 +94,7 @@ export class VisitorManager {
     Logger.log("VisitorManager", "Sending create visitor request", payload);
     const response = await this.network.request<VisitorResponse>(
       "POST",
-      "/api/v1/visitors/", // Trailing slash is required by Postman
+      "/events/api/v1/visitors/",
       payload
     );
 
@@ -157,7 +157,7 @@ export class VisitorManager {
 
     const response = await this.network.request<{ message: string }>(
       "POST",
-      "/api/v1/visitors/ping",
+      "/events/api/v1/visitors/ping",
       { message }
     );
 

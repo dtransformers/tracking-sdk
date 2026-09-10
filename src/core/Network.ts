@@ -39,7 +39,7 @@ export class NetworkClient {
    * 
    * @template T The expected return type of the parsed JSON response.
    * @param {string} method - The HTTP method (e.g., "GET", "POST", "PUT").
-   * @param {string} path - The API endpoint path (e.g., "/api/v1/events/custom").
+   * @param {string} path - The API endpoint path (e.g., "/events/api/v1/events/custom").
    * @param {unknown} [body] - The request body payload, to be serialized as JSON.
    * @param {string} [queryString] - Optional query string parameters.
    * @param {number} [maxRetries=3] - Maximum number of retries for retryable errors.

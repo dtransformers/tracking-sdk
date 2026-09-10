@@ -50,7 +50,7 @@ describe("EventTracker", () => {
 
       expect(mockNetwork.request).toHaveBeenCalledWith(
         "POST",
-        "/api/v1/events/pageviews",
+        "/events/api/v1/events/pageviews",
         {
           url: "http://localhost/",
           title: "Test Page",
@@ -68,7 +68,7 @@ describe("EventTracker", () => {
 
       expect(mockNetwork.request).toHaveBeenCalledWith(
         "POST",
-        "/api/v1/events/pageviews",
+        "/events/api/v1/events/pageviews",
         {
           url: "http://custom.com",
           title: "Test Page",
@@ -100,7 +100,7 @@ describe("EventTracker", () => {
 
       expect(mockNetwork.request).toHaveBeenCalledWith(
         "POST",
-        "/api/v1/events/custom",
+        "/events/api/v1/events/custom",
         expect.objectContaining({
           category: "interaction.click",
           type: "interaction",
@@ -128,14 +128,14 @@ describe("EventTracker", () => {
       expect(mockNetwork.request).toHaveBeenNthCalledWith(
         1,
         "POST",
-        "/api/v1/events/custom",
+        "/events/api/v1/events/custom",
         expect.objectContaining({ sequence: 1 })
       );
 
       expect(mockNetwork.request).toHaveBeenNthCalledWith(
         2,
         "POST",
-        "/api/v1/events/custom",
+        "/events/api/v1/events/custom",
         expect.objectContaining({ sequence: 2 })
       );
     });

@@ -36,7 +36,7 @@ export class ConsentManager {
       consent_type: type,
       status: "granted",
     };
-    await this.network.request<void>("POST", "/api/v1/consents/", payload);
+    await this.network.request<void>("POST", "/events/api/v1/consents/", payload);
     this.storage.setLocal(this.getStorageKey(type), "granted");
   }
 
@@ -54,7 +54,7 @@ export class ConsentManager {
       consent_type: type,
       status: "denied",
     };
-    await this.network.request<void>("POST", "/api/v1/consents/", payload);
+    await this.network.request<void>("POST", "/events/api/v1/consents/", payload);
     this.storage.setLocal(this.getStorageKey(type), "denied");
   }
 
